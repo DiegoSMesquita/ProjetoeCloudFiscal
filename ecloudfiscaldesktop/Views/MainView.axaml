@@ -1,0 +1,53 @@
+<Window xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="https://github.com/avaloniaui"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:eCloudFiscalDesktop.ViewModels"
+    x:Class="eCloudFiscalDesktop.Views.MainView"
+    Title="eCloudFiscal - Monitor de Arquivos"
+    Width="800" Height="600"
+    mc:Ignorable="d">
+    <Window.DataContext>
+        <vm:MainViewModel />
+    </Window.DataContext>
+
+    <DockPanel Margin="10">
+        <!-- Botão Selecionar Pasta -->
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="0,0,0,10">
+            <Button Content="Selecionar Pasta(s)" Command="{Binding SelectFoldersCommand}" />
+            <CheckBox Content="Permitir múltiplas pastas" IsChecked="{Binding AllowMultipleFolders}"
+                Margin="10,0,0,0" />
+        </StackPanel>
+
+        <!-- ÁREA DE LOGS -->
+        <TabItem Header="Arquivos Enviados">
+            <ListBox Items="{Binding SentFiles}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="{Binding Nome}" />
+                            <TextBlock Text="{Binding Status}" FontWeight="Bold" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </TabItem>
+
+        <TabItem Header="Arquivos com Erro">
+            <ListBox Items="{Binding ErrorFiles}">
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal" Spacing="10">
+                            <TextBlock Text="{Binding Nome}" />
+                            <TextBlock Text="{Binding Status}" Foreground="Red" FontWeight="Bold" />
+                            <Button Content="Reenviar"
+                                Command="{Binding DataContext.RetrySendCommand, RelativeSource={RelativeSource AncestorType=Window}}"
+                                CommandParameter="{Binding}" />
+                        </StackPanel>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+        </TabItem>
+        </TabControl>
+    </DockPanel>
+</Window>

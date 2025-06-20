@@ -1,0 +1,32 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "desktop", "desktop", "{7A1224A0-F22D-34FF-DE0A-A058FAFFD90C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "eCloudFiscalDesktop", "eCloudFiscalDesktop", "{BE5B0746-1111-0690-75C3-462BD46DA874}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "eCloudFiscalDesktop", "desktop\eCloudFiscalDesktop\src\eCloudFiscalDesktop.csproj", "{8DCDC5C2-F8FA-B062-43B4-DA19432F03CD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8DCDC5C2-F8FA-B062-43B4-DA19432F03CD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DCDC5C2-F8FA-B062-43B4-DA19432F03CD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DCDC5C2-F8FA-B062-43B4-DA19432F03CD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DCDC5C2-F8FA-B062-43B4-DA19432F03CD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{BE5B0746-1111-0690-75C3-462BD46DA874} = {7A1224A0-F22D-34FF-DE0A-A058FAFFD90C}
+		{8DCDC5C2-F8FA-B062-43B4-DA19432F03CD} = {BE5B0746-1111-0690-75C3-462BD46DA874}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {1D4FD55B-17F1-4D7F-933F-C8EE95781BA6}
+	EndGlobalSection
+EndGlobal

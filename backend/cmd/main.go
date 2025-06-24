@@ -6,9 +6,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/ecloudfiscal/backend/internal/config"
-	"github.com/ecloudfiscal/backend/internal/handlers"
-	"github.com/ecloudfiscal/backend/internal/models"
+	"github.com/diegomesquita/ProjetoeCloudFiscal/backend/internal/config"
+	"github.com/diegomesquita/ProjetoeCloudFiscal/backend/internal/handlers"
+	"github.com/diegomesquita/ProjetoeCloudFiscal/backend/internal/models"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
@@ -34,10 +34,14 @@ func main() {
 	fmt.Println("✅ Conectado ao PostgreSQL!")
 
 	// 4. Executar migrações
-	if err := models.RunMigrations(db); err != nil {
-		log.Fatal("🚨 Erro nas migrações:", err)
+	if err := db.AutoMigrate(&models.User{}, &models.XmlFile{}); err != nil {
+		log.Fatal("Erro ao Migrar as tabelas", err)
 	}
-	fmt.Println("✅ Migrações executadas!")
+
+	//	if err := models.RunMigrations(db); err != nil {
+	//		log.Fatal("🚨 Erro nas migrações:", err)
+	//	}
+	//	fmt.Println("✅ Migrações executadas!")
 
 	// 5. Configurar o servidor Gin
 	router := gin.Default()

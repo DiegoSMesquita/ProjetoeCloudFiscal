@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "SKmAkNZgV1M=",
+  "dgSpecHash": "HrxR9HWAgYw=",
   "success": true,
-  "projectFilePath": "/Users/diegomesquita/Documents/GitHub/eCloudFiscal/ecloudfiscaldesktop/eCloudFiscalDesktop.csproj",
+  "projectFilePath": "/Users/diegomesquita/Documents/Documentos - MacBook Air de DiegoMesquita/eCloudFiscal/eCloudFiscal/ecloudfiscaldesktop/eCloudFiscalDesktop.csproj",
   "expectedPackageFiles": [
     "/Users/diegomesquita/.nuget/packages/avalonia/11.0.11/avalonia.11.0.11.nupkg.sha512",
     "/Users/diegomesquita/.nuget/packages/avalonia.angle.windows.natives/2.1.0.2023020321/avalonia.angle.windows.natives.2.1.0.2023020321.nupkg.sha512",

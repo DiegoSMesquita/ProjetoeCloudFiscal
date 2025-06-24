@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "/Users/diegomesquita/Documents/GitHub/eCloudFiscal/ecloudfiscaldesktop/eCloudFiscalDesktop.csproj": {}
+    "/Users/diegomesquita/Documents/Documentos - MacBook Air de DiegoMesquita/eCloudFiscal/eCloudFiscal/ecloudfiscaldesktop/eCloudFiscalDesktop.csproj": {}
   },
   "projects": {
-    "/Users/diegomesquita/Documents/GitHub/eCloudFiscal/ecloudfiscaldesktop/eCloudFiscalDesktop.csproj": {
+    "/Users/diegomesquita/Documents/Documentos - MacBook Air de DiegoMesquita/eCloudFiscal/eCloudFiscal/ecloudfiscaldesktop/eCloudFiscalDesktop.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/Users/diegomesquita/Documents/GitHub/eCloudFiscal/ecloudfiscaldesktop/eCloudFiscalDesktop.csproj",
+        "projectUniqueName": "/Users/diegomesquita/Documents/Documentos - MacBook Air de DiegoMesquita/eCloudFiscal/eCloudFiscal/ecloudfiscaldesktop/eCloudFiscalDesktop.csproj",
         "projectName": "eCloudFiscalDesktop",
-        "projectPath": "/Users/diegomesquita/Documents/GitHub/eCloudFiscal/ecloudfiscaldesktop/eCloudFiscalDesktop.csproj",
+        "projectPath": "/Users/diegomesquita/Documents/Documentos - MacBook Air de DiegoMesquita/eCloudFiscal/eCloudFiscal/ecloudfiscaldesktop/eCloudFiscalDesktop.csproj",
         "packagesPath": "/Users/diegomesquita/.nuget/packages/",
-        "outputPath": "/Users/diegomesquita/Documents/GitHub/eCloudFiscal/ecloudfiscaldesktop/obj/",
+        "outputPath": "/Users/diegomesquita/Documents/Documentos - MacBook Air de DiegoMesquita/eCloudFiscal/eCloudFiscal/ecloudfiscaldesktop/obj/",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "/Users/diegomesquita/.nuget/NuGet/NuGet.Config"

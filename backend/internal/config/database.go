@@ -4,10 +4,14 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
+func LoadEnv() error {
+	return godotenv.Load(".env")
+}
 func ConnectDB() (*gorm.DB, error) {
 	dsn := fmt.Sprintf(
 		"%s:%s@tcp(%s:%s)/%s?parseTime=true",

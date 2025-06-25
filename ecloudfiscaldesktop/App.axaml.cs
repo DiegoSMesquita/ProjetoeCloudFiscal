@@ -12,7 +12,7 @@ namespace eCloudFiscalDesktop;
 
 public partial class App : Application
 {
-    public override void Initialize()
+    public void InitializeComponent()
     {
         AvaloniaXamlLoader.Load(this);
     }

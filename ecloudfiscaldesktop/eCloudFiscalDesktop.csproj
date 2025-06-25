@@ -22,10 +22,11 @@
     <PackageReference Include="System.IO.Abstractions" Version="19.2.29" />
   </ItemGroup>
 
-  <ItemGroup>
-    <AvaloniaResource Include="App.axaml" />
-    <AvaloniaResource Include="Views/*.axaml" />
-    <AvaloniaResource Include="Assets/*.ico" />
-  </ItemGroup>
+<ItemGroup>
+  <AvaloniaResource Include="App.xaml" />
+  <AvaloniaResource Include="Views/LoginView.xaml" />
+  <AvaloniaResource Include="Views/MainView.xaml" />
+  <AvaloniaResource Include="Assets/*.ico" />
+</ItemGroup>
 
 </Project>

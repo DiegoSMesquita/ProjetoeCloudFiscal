@@ -2,69 +2,71 @@ package handlers
 
 import (
 	"net/http"
-	"strconv"
 
-	"github.com/gin-gonic/gin"
-	"gorm.io/gorm"
-
+	"github.com/diegomesquita/ProjetoeCloudFiscal/backend/internal/config"
 	"github.com/diegomesquita/ProjetoeCloudFiscal/backend/internal/models"
+	"github.com/gin-gonic/gin"
 )
 
-// Health check para verificar se o servidor está de pé
-func Health(c *gin.Context) {
-	c.JSON(http.StatusOK, gin.H{"status": "ok"})
+// ------------ LOGIN ------------
+
+type LoginRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
-// Rota para retornar arquivos com status pendente (paginado)
-func GetPendingFiles(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
+func LoginHandler(c *gin.Context) {
+	var req LoginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JSON inválido"})
+		return
+	}
 
-	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
-	limit, _ := strconv.Atoi(c.DefaultQuery("limit", "20"))
-	offset := (page - 1) * limit
+	db := config.GetDB()
+
+	var user models.User
+	if err := db.Where("email = ? AND password = ?", req.Email, req.Password).First(&user).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Email ou senha inválidos"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Login realizado com sucesso",
+		"user": gin.H{
+			"id":    user.ID,
+			"email": user.Email,
+		},
+	})
+}
+
+// ------------ UPLOAD XML ------------
+
+func GetPendingFiles(c *gin.Context) {
+	db := config.GetDB()
 
 	var files []models.XmlFile
-	result := db.Where("status = ?", "pending").Offset(offset).Limit(limit).Find(&files)
-
-	if result.Error != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": result.Error.Error()})
+	if err := db.Where("status = ?", "pending").Find(&files).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar arquivos pendentes"})
 		return
 	}
 
 	c.JSON(http.StatusOK, files)
 }
 
-// Registro de todas as rotas
-func RegisterRoutes(r *gin.Engine) {
-	r.GET("/health", Health)
-	r.GET("/api/files/pending", GetPendingFiles)
-	r.POST("/api/files/upload", UploadXml)
-}
+func UploadHandler(c *gin.Context) {
+	var file models.XmlFile
 
-// Enviar um novo XML (recebido do app desktop)
-func UploadXml(c *gin.Context) {
-	db := c.MustGet("db").(*gorm.DB)
-
-	var input struct {
-		UserID   string `json:"user_id"`
-		FileName string `json:"file_name"`
-	}
-
-	if err := c.ShouldBindJSON(&input); err != nil {
+	if err := c.ShouldBindJSON(&file); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "JSON inválido"})
 		return
 	}
 
-	xml := models.XmlFile{
-		UserID:   input.UserID,
-		FileName: input.FileName,
-		Status:   "pending",
-	}
-
-	if err := db.Create(&xml).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao salvar XML"})
+	file.Status = "pending"
+	db := config.GetDB()
+	if err := db.Create(&file).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao salvar arquivo"})
 		return
 	}
 
-	c.JSON(http.StatusOK, gin.H{"message": "XML recebido com sucesso"})
+	c.JSON(http.StatusOK, gin.H{"message": "Arquivo recebido com sucesso"})
 }

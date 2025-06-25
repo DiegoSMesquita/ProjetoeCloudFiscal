@@ -31,43 +31,42 @@ func main() {
 	if err != nil {
 		log.Fatal("🚨 Erro na conexão com o banco:", err)
 	}
-	fmt.Println("✅ Conectado ao Mysql!")
+	fmt.Println("✅ Conectado ao MySQL!")
 
 	// 4. Executar migrações
 	if err := db.AutoMigrate(&models.User{}, &models.XmlFile{}); err != nil {
-		log.Fatal("Erro ao Migrar as tabelas", err)
+		log.Fatal("❌ Erro ao migrar as tabelas:", err)
 	}
 
-	//	if err := models.RunMigrations(db); err != nil {
-	//		log.Fatal("🚨 Erro nas migrações:", err)
-	//	}
-	//	fmt.Println("✅ Migrações executadas!")
+	// 5. Iniciar handlers com DB
+	handlers.Init(db)
 
-	// 5. Configurar o servidor Gin
+	// 6. Configurar servidor Gin
 	router := gin.Default()
-	router.Use(gin.Logger()) // Habilita logging das requisições
+	router.Use(gin.Logger())
 
-	// 6. Registrar rotas
+	// 7. Registrar rotas
 	registerRoutes(router)
 
-	// 7. Configurar porta
+	// 8. Configurar porta
 	port := os.Getenv("PORT")
 	if port == "" {
 		port = "8080"
 	}
 
-	// 8. Iniciar servidor
+	// 9. Iniciar servidor
 	fmt.Printf("\n🚀 Servidor rodando em http://localhost:%s\n\n", port)
 	log.Fatal(http.ListenAndServe(":"+port, router))
 }
 
+// 🔓 Rotas públicas
 func registerRoutes(router *gin.Engine) {
-	// Rotas públicas
 	router.GET("/", homeHandler)
 	router.GET("/health", healthHandler)
 	router.GET("/api/files/pending", handlers.GetPendingFiles)
 
-	// Rotas autenticadas
+	router.POST("/api/login", handlers.LoginHandler) // ✅ aqui
+
 	authGroup := router.Group("/api/v1")
 	authGroup.Use(authMiddleware())
 	{
@@ -76,7 +75,7 @@ func registerRoutes(router *gin.Engine) {
 	}
 }
 
-// Handlers
+// Handlers simples
 func homeHandler(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Bem-vindo à API eCloudFiscal",
@@ -109,7 +108,7 @@ func uploadHandler(c *gin.Context) {
 	})
 }
 
-// Middlewares
+// Middleware fictício (JWT no futuro)
 func authMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.GetHeader("Authorization")
@@ -119,7 +118,6 @@ func authMiddleware() gin.HandlerFunc {
 			})
 			return
 		}
-		// Implementar validação JWT aqui
 		c.Next()
 	}
 }

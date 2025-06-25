@@ -7,62 +7,23 @@ using Avalonia.Threading;
 using eCloudFiscalDesktop.Views;
 using eCloudFiscalDesktop.Helpers;
 
-namespace eCloudFiscalDesktop
+
+namespace eCloudFiscalDesktop;
+
+public partial class App : Application
 {
-    public partial class App : Application
+    public override void Initialize()
     {
-        private TrayIcon? _trayIcon;
+        AvaloniaXamlLoader.Load(this);
+    }
 
-        public override void Initialize()
+    public override void OnFrameworkInitializationCompleted()
+    {
+        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            AvaloniaXamlLoader.Load(this);
+            desktop.MainWindow = new Views.LoginView();
         }
 
-        public override void OnFrameworkInitializationCompleted()
-        {
-            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            // if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                // Ativa inicialização com o sistema (Windows)
-                AutoStartupHelper.EnableAutoStart("eCloudFiscalDesktop");
-
-                var loginWindow = new LoginView();
-                desktop.MainWindow = loginWindow;
-
-                // Configura ícone na bandeja
-                _trayIcon = new TrayIcon
-                {
-                    Icon = new WindowIcon("Assets/trayicon.ico"),
-                    ToolTipText = "eCloudFiscal Monitor",
-                    Menu = new NativeMenu()
-                };
-
-                var showItem = new NativeMenuItem("Mostrar Janela");
-                showItem.Click += (_, _) => Dispatcher.UIThread.Post(() =>
-                {
-                    loginWindow.Show();
-                    loginWindow.WindowState = WindowState.Normal;
-                });
-
-                var exitItem = new NativeMenuItem("Sair");
-                exitItem.Click += (_, _) => desktop.Shutdown();
-
-                _trayIcon.Menu.Items.Add(showItem);
-                _trayIcon.Menu.Items.Add(exitItem);
-
-                _trayIcon.IsVisible = true;
-
-                // Impede o fechamento da janela (apenas oculta)
-                loginWindow.Closing += (s, e) =>
-                {
-                    e.Cancel = true;
-                    loginWindow.Hide();
-                };
-
-                loginWindow.Show();
-            }
-
-            base.OnFrameworkInitializationCompleted();
-        }
+        base.OnFrameworkInitializationCompleted();
     }
 }

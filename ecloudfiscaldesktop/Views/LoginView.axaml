@@ -1,13 +1,11 @@
 <Window xmlns="https://github.com/avaloniaui"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:avaloniaControls="clr-namespace:Avalonia.Controls;assembly=Avalonia.Controls"
-    xmlns:d="https://github.com/avaloniaui"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:vm="clr-namespace:eCloudFiscalDesktop.ViewModels"
-    x:Class="eCloudFiscalDesktop.Views.LoginView"
-    Width="400" Height="300"
-    Title="Login - eCloudFiscal"
-    mc:Ignorable="d">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="https://github.com/avaloniaui"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:vm="clr-namespace:eCloudFiscalDesktop.ViewModels"
+        Width="400" Height="300"
+        Title="Login - eCloudFiscal"
+        mc:Ignorable="d">
 
     <Window.DataContext>
         <vm:LoginViewModel />

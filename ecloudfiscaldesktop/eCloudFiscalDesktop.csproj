@@ -4,8 +4,6 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
-    
-    <!-- Configurações para empacotamento -->
     <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
@@ -16,23 +14,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Avalonia UI + Fluent Theme -->
     <PackageReference Include="Avalonia" Version="11.0.11" />
     <PackageReference Include="Avalonia.Desktop" Version="11.0.11" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.11" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.11" />
-
-    <!-- ReactiveUI -->
     <PackageReference Include="ReactiveUI" Version="20.1.1" />
-
-    <!-- System.IO abstrações -->
     <PackageReference Include="System.IO.Abstractions" Version="19.2.29" />
   </ItemGroup>
 
   <ItemGroup>
-    <!-- Recursos XAML -->
     <AvaloniaResource Include="App.axaml" />
-     <AvaloniaResource Include="View/ *.axaml" />
+    <AvaloniaResource Include="Views/*.axaml" />
     <AvaloniaResource Include="Assets/*.ico" />
   </ItemGroup>
 

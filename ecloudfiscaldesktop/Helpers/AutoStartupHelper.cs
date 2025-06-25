@@ -1,5 +1,6 @@
 using Microsoft.Win32;
 using System;
+using System.Dynamic;
 using System.Runtime.InteropServices;
 
 namespace eCloudFiscalDesktop.Helpers

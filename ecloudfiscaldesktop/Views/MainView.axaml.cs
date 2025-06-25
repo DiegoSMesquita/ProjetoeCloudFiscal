@@ -1,3 +1,4 @@
+using System;
 using Avalonia.Controls;
 
 namespace eCloudFiscalDesktop.Views
@@ -7,6 +8,11 @@ namespace eCloudFiscalDesktop.Views
         public MainView()
         {
             InitializeComponent();
+        }
+
+        private void InitializeComponent()
+        {
+            throw new NotImplementedException();
         }
     }
 }

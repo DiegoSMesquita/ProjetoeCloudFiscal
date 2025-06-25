@@ -3,7 +3,6 @@
         xmlns:d="https://github.com/avaloniaui"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:eCloudFiscalDesktop.ViewModels"
-        x:Class="eCloudFiscalDesktop.Views.MainView"
         Title="eCloudFiscal - Monitor de Arquivos"
         Width="800" Height="600"
         mc:Ignorable="d">

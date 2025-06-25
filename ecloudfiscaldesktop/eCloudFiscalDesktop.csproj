@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     
     <!-- Configurações para empacotamento -->
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <RuntimeIdentifier>osx-x64</RuntimeIdentifier>
     <SelfContained>true</SelfContained>
     <PublishSingleFile>true</PublishSingleFile>
     <PublishTrimmed>false</PublishTrimmed>
@@ -32,9 +32,8 @@
   <ItemGroup>
     <!-- Recursos XAML -->
     <AvaloniaResource Include="App.axaml" />
-    <AvaloniaResource Include="Views/MainView.axaml" />
-    <AvaloniaResource Include="Views/LoginView.axaml" />
-    <AvaloniaResource Include="Assets/trayicon.ico" />
+     <AvaloniaResource Include="View/ *.axaml" />
+    <AvaloniaResource Include="Assets/*.ico" />
   </ItemGroup>
 
 </Project>

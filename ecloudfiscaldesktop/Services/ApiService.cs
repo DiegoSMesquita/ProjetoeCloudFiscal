@@ -12,7 +12,7 @@ namespace eCloudFiscalDesktop.Services
         public ApiService()
         {
             _client = new HttpClient();
-            _client.BaseAddress = new System.Uri("https://sua-api.com.br/");
+            _client.BaseAddress = new System.Uri("http://localhost:8080/");
             _client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
         }
 

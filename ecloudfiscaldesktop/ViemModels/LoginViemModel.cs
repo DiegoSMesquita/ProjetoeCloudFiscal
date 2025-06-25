@@ -1,6 +1,8 @@
 using ReactiveUI;
 using System.Reactive;
 using System.Threading.Tasks;
+using Avalonia;
+using Avalonia.Controls.ApplicationLifetimes;
 
 namespace eCloudFiscalDesktop.ViewModels
 {
@@ -32,22 +34,20 @@ namespace eCloudFiscalDesktop.ViewModels
         {
             if (Email == "admin@teste.com" && Password == "123456")
             {
-                // Simula login bem-sucedido (substituir com chamada à API)
+                // ✅ Simula login
                 var main = new Views.MainView();
                 main.Show();
 
-                // Fecha a janela de login
-                foreach (var win in Avalonia.Application.Current.ApplicationLifetime
-                             as Avalonia.Controls.ApplicationLifetimes.IClassicDesktopStyleApplicationLifetime)
-                {
-                    win.MainWindow?.Close();
-                }
+                var lifetime = Application.Current.ApplicationLifetime 
+                               as IClassicDesktopStyleApplicationLifetime;
+
+                lifetime?.MainWindow?.Close();
             }
             else
             {
                 await Task.Run(() =>
                 {
-                    // Aqui você pode mostrar uma mensagem de erro ou status
+                    // Aqui você pode exibir um alerta ou status
                 });
             }
         }

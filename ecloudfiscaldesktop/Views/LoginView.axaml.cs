@@ -11,12 +11,5 @@ namespace eCloudFiscalDesktop.Views
             InitializeComponent();
         }
 
-        private void OnPasswordChanged(object sender, RoutedEventArgs e)
-        {
-            if (this.DataContext is LoginViewModel vm && sender is PasswordBox pb)
-            {
-                vm.Password = pb.Password;
-            }
-        }
     }
 }

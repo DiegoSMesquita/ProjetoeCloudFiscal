@@ -1,2 +1,0 @@
-/Users/diegomesquita/Documents/GitHub/eCloudFiscal/ecloudfiscaldesktop/obj/Debug/net8.0/win-x64/eCloudFiscalDesktop.csproj.AssemblyReference.cache
-/Users/diegomesquita/Documents/GitHub/eCloudFiscal/ecloudfiscaldesktop/obj/Debug/net8.0/win-x64/Avalonia/Resources.Inputs.cache

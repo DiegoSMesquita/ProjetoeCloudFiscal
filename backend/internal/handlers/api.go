@@ -38,4 +38,33 @@ func GetPendingFiles(c *gin.Context) {
 func RegisterRoutes(r *gin.Engine) {
 	r.GET("/health", Health)
 	r.GET("/api/files/pending", GetPendingFiles)
+	r.POST("/api/files/upload", UploadXml)
+}
+
+// Enviar um novo XML (recebido do app desktop)
+func UploadXml(c *gin.Context) {
+	db := c.MustGet("db").(*gorm.DB)
+
+	var input struct {
+		UserID   string `json:"user_id"`
+		FileName string `json:"file_name"`
+	}
+
+	if err := c.ShouldBindJSON(&input); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "JSON inválido"})
+		return
+	}
+
+	xml := models.XmlFile{
+		UserID:   input.UserID,
+		FileName: input.FileName,
+		Status:   "pending",
+	}
+
+	if err := db.Create(&xml).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao salvar XML"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "XML recebido com sucesso"})
 }

@@ -1,10 +1,13 @@
 using ReactiveUI;
+using System;
 using System.Collections.ObjectModel;
+using System.IO;
+using System.Linq;
 using System.Reactive;
 using System.Threading.Tasks;
 using Avalonia.Controls;
+using eCloudFiscalDesktop.Models;
 using eCloudFiscalDesktop.Services;
-using System.IO;
 
 namespace eCloudFiscalDesktop.ViewModels
 {
@@ -22,6 +25,7 @@ namespace eCloudFiscalDesktop.ViewModels
 
         public ObservableCollection<string> MonitoredFolders { get; } = new();
         private readonly FileMonitorService _monitorService;
+        private readonly ApiService _apiService;
 
         public ReactiveCommand<Unit, Unit> SelectFoldersCommand { get; }
         public ReactiveCommand<string, Unit> RetrySendCommand { get; }
@@ -29,35 +33,15 @@ namespace eCloudFiscalDesktop.ViewModels
         public MainViewModel()
         {
             _monitorService = new FileMonitorService(OnXmlDetected);
+            _apiService = new ApiService();
 
             SelectFoldersCommand = ReactiveCommand.CreateFromTask(SelectFoldersAsync);
             RetrySendCommand = ReactiveCommand.CreateFromTask<string>(RetrySendAsync);
 
-            // Restaurar pastas (simulado)
             LoadMonitoredFolders();
             LoadErrorFiles();
-
-            // Simula logs
-            SentFiles.Add("NF-e_001.xml");
-            ErrorFiles.Add("ERRO_.xml");
         }
 
-        private async Task SelectFoldersAsync()
-        {
-            // Aqui entra a lógica real usando StorageProvider ou FilePicker
-            // Simulação por enquanto
-            await Task.Delay(200); // Simula carregamento
-        }
-
-        private async Task RetrySendAsync(string file)
-        {
-            if (ErrorFiles.Contains(file))
-            {
-                ErrorFiles.Remove(file);
-                SentFiles.Add(file); // Simula sucesso
-                await Task.Delay(100);
-            }
-        }
         private async Task SelectFoldersAsync()
         {
             var dialog = new OpenFolderDialog();
@@ -71,14 +55,25 @@ namespace eCloudFiscalDesktop.ViewModels
             }
         }
 
+        private async Task RetrySendAsync(string fileName)
+        {
+            var item = ErrorFiles.FirstOrDefault(f => f.Nome == fileName);
+            if (item != null)
+            {
+                ErrorFiles.Remove(item);
+                SentFiles.Add(item);
+
+                await Task.Delay(100); // simula novo envio
+            }
+        }
+
         private async void OnXmlDetected(string fullPath)
         {
-            // Aqui pode validar, enviar ao backend etc.
-            if (Path.GetExtension(fullPath).ToLower() != ".xml")
+            if (!fullPath.EndsWith(".xml", StringComparison.OrdinalIgnoreCase))
                 return;
-            var nome = fullPath.GetFileName(fullPath);
-            var xmlItem = new XmlFileModel(nome, "⏳ Enviando....");
 
+            var fileName = Path.GetFileName(fullPath);
+            var xmlItem = new XmlFileModel(fileName, "⏳ Enviando...");
             SentFiles.Add(xmlItem);
 
             var sucesso = await _apiService.EnviarXmlAsync(fullPath);
@@ -92,15 +87,13 @@ namespace eCloudFiscalDesktop.ViewModels
                 SentFiles.Remove(xmlItem);
                 xmlItem.Status = "❌ Erro";
                 ErrorFiles.Add(xmlItem);
-
                 SaveErrorFiles();
             }
-
         }
 
         private void LoadMonitoredFolders()
         {
-            var path = "monitored_paths.txt";
+            const string path = "monitored_paths.txt";
             if (File.Exists(path))
             {
                 var folders = File.ReadAllLines(path);
@@ -114,50 +107,22 @@ namespace eCloudFiscalDesktop.ViewModels
         private void SaveMonitoredFolders()
         {
             File.WriteAllLines("monitored_paths.txt", MonitoredFolders);
-        }
-
-        private void OnXmlDetected(string fullPath)
-        {
-            // Aqui pode validar, enviar ao backend etc.
-            if (Path.GetExtension(fullPath).Equals(".xml", StringComparison.OrdinalIgnoreCase))
-            {
-                if (!SentFiles.Contains(Path.GetFileName(fullPath)))
-                    SentFiles.Add(Path.GetFileName(fullPath));
-            }
-        }
-
-        private void LoadMonitoredFolders()
-        {
-            var path = "monitored_paths.txt";
-            if (File.Exists(path))
-            {
-                var folders = File.ReadAllLines(path);
-                foreach (var f in folders)
-                    MonitoredFolders.Add(f);
-
-                _monitorService.StartWatching(MonitoredFolders);
-            }
-        }
-
-        private void SaveMonitoredFolders()
-        {
-            File.WriteAllLines("monitored_paths.txt", MonitoredFolders);
-        }
-
-        private readonly ApiService _apiService()
-        {
-            _apiService = new ApiService();
         }
 
         private void LoadErrorFiles()
         {
-            if (!File.Exists("error_files.txt"))
-                return;
-            var lines = File.ReadAllLines("error_files.txt");
+            const string path = "error_files.txt";
+            if (!File.Exists(path)) return;
+
+            var lines = File.ReadAllLines(path);
             foreach (var line in lines)
-            {
-                ErrorFiles.Add(new Models.XmlFileModel(line, "❌ Erro"));
-            }
+                ErrorFiles.Add(new XmlFileModel(line, "❌ Erro"));
+        }
+
+        private void SaveErrorFiles()
+        {
+            var list = ErrorFiles.Select(f => f.Nome).ToArray();
+            File.WriteAllLines("error_files.txt", list);
         }
     }
 }

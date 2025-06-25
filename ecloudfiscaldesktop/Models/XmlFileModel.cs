@@ -4,9 +4,14 @@ namespace eCloudFiscalDesktop.Models
 {
     public class XmlFileModel : ReactiveObject
     {
-        public string Nome { get; set; }
+        private string _nome = string.Empty;
+        public string Nome
+        {
+            get => _nome;
+            set => this.RaiseAndSetIfChanged(ref _nome, value);
+        }
 
-        private string _status;
+        private string _status = string.Empty;
         public string Status
         {
             get => _status;

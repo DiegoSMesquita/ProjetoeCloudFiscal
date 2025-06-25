@@ -9,8 +9,8 @@ import (
 
 type User struct {
 	ID        string `gorm:"type:char(36);primaryKey"`
-	Email     string `gorm:"uniqueIndex;not null"`
-	Password  string `gorm:"not null"`
+	Email     string `gorm:"type:varchar(191);uniqueIndex;not null"`
+	Password  string `gorm:"type:varchar(255);not null"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }

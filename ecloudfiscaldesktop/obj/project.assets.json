@@ -637,7 +637,7 @@
         }
       }
     },
-    "net8.0/win-x64": {
+    "net8.0/osx-x64": {
       "Avalonia/11.0.11": {
         "type": "package",
         "dependencies": {
@@ -716,10 +716,7 @@
         }
       },
       "Avalonia.Angle.Windows.Natives/2.1.0.2023020321": {
-        "type": "package",
-        "native": {
-          "runtimes/win-x64/native/av_libglesv2.dll": {}
-        }
+        "type": "package"
       },
       "Avalonia.BuildServices/0.0.29": {
         "type": "package",
@@ -778,6 +775,9 @@
           "lib/net6.0/Avalonia.Native.dll": {
             "related": ".xml"
           }
+        },
+        "native": {
+          "runtimes/osx/native/libAvaloniaNative.dylib": {}
         }
       },
       "Avalonia.ReactiveUI/11.0.11": {
@@ -937,6 +937,9 @@
         },
         "runtime": {
           "lib/net6.0/_._": {}
+        },
+        "native": {
+          "runtimes/osx/native/libHarfBuzzSharp.dylib": {}
         }
       },
       "HarfBuzzSharp.NativeAssets.WebAssembly/7.3.0": {
@@ -959,9 +962,6 @@
         },
         "runtime": {
           "lib/net6.0/_._": {}
-        },
-        "native": {
-          "runtimes/win-x64/native/libHarfBuzzSharp.dll": {}
         }
       },
       "MicroCom.Runtime/0.11.0": {
@@ -1033,6 +1033,9 @@
         },
         "runtime": {
           "lib/net6.0/_._": {}
+        },
+        "native": {
+          "runtimes/osx/native/libSkiaSharp.dylib": {}
         }
       },
       "SkiaSharp.NativeAssets.WebAssembly/2.88.7": {
@@ -1055,9 +1058,6 @@
         },
         "runtime": {
           "lib/net6.0/_._": {}
-        },
-        "native": {
-          "runtimes/win-x64/native/libSkiaSharp.dll": {}
         }
       },
       "Splat/15.1.1": {
@@ -2433,7 +2433,7 @@
             "version": "[8.0.16, 8.0.16]"
           },
           {
-            "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
+            "name": "Microsoft.AspNetCore.App.Runtime.osx-x64",
             "version": "[8.0.16, 8.0.16]"
           },
           {
@@ -2441,7 +2441,7 @@
             "version": "[8.0.16, 8.0.16]"
           },
           {
-            "name": "Microsoft.NETCore.App.Host.win-x64",
+            "name": "Microsoft.NETCore.App.Host.osx-x64",
             "version": "[8.0.16, 8.0.16]"
           },
           {
@@ -2449,7 +2449,7 @@
             "version": "[8.0.16, 8.0.16]"
           },
           {
-            "name": "Microsoft.NETCore.App.Runtime.win-x64",
+            "name": "Microsoft.NETCore.App.Runtime.osx-x64",
             "version": "[8.0.16, 8.0.16]"
           }
         ],
@@ -2462,7 +2462,7 @@
       }
     },
     "runtimes": {
-      "win-x64": {
+      "osx-x64": {
         "#import": []
       }
     }

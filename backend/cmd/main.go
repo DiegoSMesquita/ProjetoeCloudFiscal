@@ -31,7 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatal("🚨 Erro na conexão com o banco:", err)
 	}
-	fmt.Println("✅ Conectado ao PostgreSQL!")
+	fmt.Println("✅ Conectado ao Mysql!")
 
 	// 4. Executar migrações
 	if err := db.AutoMigrate(&models.User{}, &models.XmlFile{}); err != nil {

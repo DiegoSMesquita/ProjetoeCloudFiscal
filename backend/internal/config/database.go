@@ -1,25 +1,35 @@
 package config
 
 import (
-	"fmt"
+	"log"
 	"os"
 
-	"github.com/joho/godotenv"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 )
 
-func LoadEnv() error {
-	return godotenv.Load(".env")
-}
+var db *gorm.DB
+
 func ConnectDB() (*gorm.DB, error) {
-	dsn := fmt.Sprintf(
-		"%s:%s@tcp(%s:%s)/%s?parseTime=true",
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_PORT"),
-		os.Getenv("DB_NAME"),
-	)
-	return gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	dsn := os.Getenv("DB_USER") + ":" +
+		os.Getenv("DB_PASSWORD") + "@tcp(" +
+		os.Getenv("DB_HOST") + ":" +
+		os.Getenv("DB_PORT") + ")/" +
+		os.Getenv("DB_NAME") + "?charset=utf8mb4&parseTime=True&loc=Local"
+
+	database, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+
+	db = database
+	return db, nil
+}
+
+// ✅ Esta função precisa ser adicionada:
+func GetDB() *gorm.DB {
+	if db == nil {
+		log.Fatal("❌ Banco de dados ainda não conectado. Chame ConnectDB() primeiro.")
+	}
+	return db
 }

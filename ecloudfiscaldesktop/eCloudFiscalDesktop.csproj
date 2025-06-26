@@ -18,6 +18,7 @@
     <PackageReference Include="Avalonia.Desktop" Version="11.0.11" />
     <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.11" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="11.0.11" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="ReactiveUI" Version="20.1.1" />
     <PackageReference Include="System.IO.Abstractions" Version="19.2.29" />
   </ItemGroup>

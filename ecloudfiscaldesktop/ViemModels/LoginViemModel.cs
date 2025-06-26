@@ -1,8 +1,15 @@
 using ReactiveUI;
+using System;
+using System.Net.Http;
+using System.Net.Http.Json;
 using System.Reactive;
 using System.Threading.Tasks;
-using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Threading;
+using eCloudFiscalDesktop.Views;
+using Newtonsoft.Json;
 using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia;
 
 namespace eCloudFiscalDesktop.ViewModels
 {
@@ -32,24 +39,91 @@ namespace eCloudFiscalDesktop.ViewModels
 
         private async Task LoginAsync()
         {
-            if (Email == "admin@teste.com" && Password == "123456")
-            {
-                // ✅ Simula login
-                var main = new Views.MainView();
-                main.Show();
+            using var client = new HttpClient();
+            var url = "http://localhost:8080/api/login";
 
-                var lifetime = Application.Current.ApplicationLifetime 
-                               as IClassicDesktopStyleApplicationLifetime;
-
-                lifetime?.MainWindow?.Close();
-            }
-            else
+            var payload = new
             {
-                await Task.Run(() =>
+                email = Email,
+                password = Password
+            };
+
+            try
+            {
+                var response = await client.PostAsJsonAsync(url, payload);
+
+                if (response.IsSuccessStatusCode)
                 {
-                    // Aqui você pode exibir um alerta ou status
-                });
+                    var content = await response.Content.ReadAsStringAsync();
+                    var result = JsonConvert.DeserializeObject<LoginResponse>(content);
+
+                    // Abrir tela principal
+                    Dispatcher.UIThread.Post(() =>
+                    {
+                        var main = new MainView();
+                        main.Show();
+
+                        if (Avalonia.Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime app)
+                        {
+                            app.MainWindow?.Close(); // Fecha janela de login
+                            app.MainWindow = main;
+                        }
+                    });
+                }
+                else
+                {
+                    await ShowError("Email ou senha inválidos.");
+                }
             }
+            catch (Exception ex)
+            {
+                await ShowError($"Erro na conexão: {ex.Message}");
+            }
+        }
+
+        private async Task ShowError(string message)
+        {
+            await Dispatcher.UIThread.InvokeAsync(async () =>
+            {
+                var dlg = new Window
+                {
+                    Title = "Erro",
+                    Width = 300,
+                    Height = 150,
+                    Content = new StackPanel
+                    {
+                        Children =
+                        {
+                            new TextBlock { Text = message, Margin = new Thickness(10) },
+                            new Button
+                            {
+                                Content = "OK",
+                                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                                Margin = new Thickness(10),
+                                Command = ReactiveCommand.Create(() =>
+                                {
+                                    dlg.Close();
+                                })
+                            }
+                        }
+                    }
+                };
+
+                await dlg.ShowDialog((Window?)App.Current?.ApplicationLifetime switch
+                {
+                    IClassicDesktopStyleApplicationLifetime d => d.MainWindow,
+                    _ => null
+                });
+            });
+        }
+
+        private class LoginResponse
+        {
+            [JsonProperty("token")]
+            public string Token { get; set; } = string.Empty;
+
+            [JsonProperty("user_id")]
+            public string UserId { get; set; } = string.Empty;
         }
     }
 }

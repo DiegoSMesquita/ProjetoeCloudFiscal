@@ -1,0 +1,4 @@
+/Users/diegomesquita/Documents/Documentos - MacBook Air de DiegoMesquita/eCloudFiscal/eCloudFiscal/ecloudfiscaldesktop/obj/Debug/net8.0/osx-x64/eCloudFiscalDesktop.csproj.AssemblyReference.cache
+/Users/diegomesquita/Documents/Documentos - MacBook Air de DiegoMesquita/eCloudFiscal/eCloudFiscal/ecloudfiscaldesktop/obj/Debug/net8.0/osx-x64/Avalonia/Resources.Inputs.cache
+/Users/diegomesquita/Documents/Documentos - MacBook Air de DiegoMesquita/eCloudFiscal/eCloudFiscal/ecloudfiscaldesktop_old/obj/Debug/net8.0/osx-x64/eCloudFiscalDesktop.csproj.AssemblyReference.cache
+/Users/diegomesquita/Documents/Documentos - MacBook Air de DiegoMesquita/eCloudFiscal/eCloudFiscal/ecloudfiscaldesktop_old/obj/Debug/net8.0/osx-x64/Avalonia/Resources.Inputs.cache

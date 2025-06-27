@@ -1,0 +1,34 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="eCloudFiscalDesktop.MainWindow"
+        Title="Monitoramento XML - eCloudFiscal"
+        Width="700" Height="500"
+        WindowStartupLocation="CenterScreen">
+  <DockPanel Margin="10">
+    <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="0,0,0,10" Spacing="10">
+      <Button Content="Selecionar Pastas" Command="{Binding SelectFoldersCommand}" />
+      <Button Content="Iniciar Monitoramento" Command="{Binding StartMonitoringCommand}" />
+      <Button Content="Forçar Envio Pendentes" Command="{Binding ForceSendCommand}" />
+    </StackPanel>
+    <Grid ColumnDefinitions="*,*" RowDefinitions="Auto,*" Margin="0,10,0,0" >
+      <Border Grid.Column="0" Margin="5" Padding="5" BorderBrush="Gray" BorderThickness="1">
+        <StackPanel>
+          <TextBlock Text="Pastas Monitoradas" FontWeight="Bold" Margin="0,0,0,5"/>
+          <ListBox ItemsSource="{Binding MonitoredFolders}" Height="100"/>
+        </StackPanel>
+      </Border>
+      <Border Grid.Column="0" Grid.Row="1" Margin="5" Padding="5" BorderBrush="Gray" BorderThickness="1">
+        <StackPanel>
+          <TextBlock Text="Arquivos Enviados" FontWeight="Bold" Margin="0,0,0,5"/>
+          <ListBox ItemsSource="{Binding SentFiles}" Height="150"/>
+        </StackPanel>
+      </Border>
+      <Border Grid.Column="1" Grid.RowSpan="2" Margin="5" Padding="5" BorderBrush="Gray" BorderThickness="1">
+        <StackPanel>
+          <TextBlock Text="Arquivos Pendentes" FontWeight="Bold" Margin="0,0,0,5"/>
+          <ListBox ItemsSource="{Binding PendingFiles}" Height="300"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+  </DockPanel>
+</Window>

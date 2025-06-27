@@ -17,14 +17,14 @@
           "/Users/diegomesquita/.nuget/NuGet/NuGet.Config"
         ],
         "originalTargetFrameworks": [
-          "net8.0"
+          "net9.0"
         ],
         "sources": {
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net8.0": {
-            "targetAlias": "net8.0",
+          "net9.0": {
+            "targetAlias": "net9.0",
             "projectReferences": {}
           }
         },
@@ -41,42 +41,32 @@
         "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
-        "net8.0": {
-          "targetAlias": "net8.0",
+        "net9.0": {
+          "targetAlias": "net9.0",
           "dependencies": {
             "Avalonia": {
               "target": "Package",
-              "version": "[11.0.11, )"
+              "version": "[11.3.2, )"
             },
             "Avalonia.Desktop": {
               "target": "Package",
-              "version": "[11.0.11, )"
+              "version": "[11.3.2, )"
             },
-            "Avalonia.ReactiveUI": {
+            "Avalonia.Diagnostics": {
               "target": "Package",
-              "version": "[11.0.11, )"
+              "version": "[11.3.2, )"
+            },
+            "Avalonia.Fonts.Inter": {
+              "target": "Package",
+              "version": "[11.3.2, )"
             },
             "Avalonia.Themes.Fluent": {
               "target": "Package",
-              "version": "[11.0.11, )"
-            },
-            "Microsoft.NET.ILLink.Tasks": {
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[8.0.16, )",
-              "autoReferenced": true
-            },
-            "Newtonsoft.Json": {
-              "target": "Package",
-              "version": "[13.0.3, )"
+              "version": "[11.3.2, )"
             },
             "ReactiveUI": {
               "target": "Package",
-              "version": "[20.1.1, )"
-            },
-            "System.IO.Abstractions": {
-              "target": "Package",
-              "version": "[19.2.29, )"
+              "version": "[19.6.1, )"
             }
           },
           "imports": [
@@ -90,43 +80,12 @@
           ],
           "assetTargetFallback": true,
           "warn": true,
-          "downloadDependencies": [
-            {
-              "name": "Microsoft.AspNetCore.App.Ref",
-              "version": "[8.0.16, 8.0.16]"
-            },
-            {
-              "name": "Microsoft.AspNetCore.App.Runtime.osx-x64",
-              "version": "[8.0.16, 8.0.16]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Crossgen2.osx-arm64",
-              "version": "[8.0.16, 8.0.16]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Host.osx-x64",
-              "version": "[8.0.16, 8.0.16]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Ref",
-              "version": "[8.0.16, 8.0.16]"
-            },
-            {
-              "name": "Microsoft.NETCore.App.Runtime.osx-x64",
-              "version": "[8.0.16, 8.0.16]"
-            }
-          ],
           "frameworkReferences": {
             "Microsoft.NETCore.App": {
               "privateAssets": "all"
             }
           },
           "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/9.0.300/PortableRuntimeIdentifierGraph.json"
-        }
-      },
-      "runtimes": {
-        "osx-x64": {
-          "#import": []
         }
       }
     }

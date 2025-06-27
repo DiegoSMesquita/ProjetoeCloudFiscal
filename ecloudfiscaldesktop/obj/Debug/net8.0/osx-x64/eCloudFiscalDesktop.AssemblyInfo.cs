@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("eCloudFiscalDesktop")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+73078931f428c8c1eaea9b013bd2644aeed2a46b")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+50df0e6f3973dc77fe201ffa1f8d7e87b98ddc4c")]
 [assembly: System.Reflection.AssemblyProductAttribute("eCloudFiscalDesktop")]
 [assembly: System.Reflection.AssemblyTitleAttribute("eCloudFiscalDesktop")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

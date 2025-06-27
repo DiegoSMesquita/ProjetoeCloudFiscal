@@ -24,9 +24,8 @@
   </ItemGroup>
 
 <ItemGroup>
-  <AvaloniaResource Include="App.xaml" />
-  <AvaloniaResource Include="Views/LoginView.xaml" />
-  <AvaloniaResource Include="Views/MainView.xaml" />
+  <AvaloniaResource Include="App.axaml" />
+  <AvaloniaResource Include="Views\**\*.axaml" />
   <AvaloniaResource Include="Assets/*.ico" />
 </ItemGroup>
 

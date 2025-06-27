@@ -40,12 +40,12 @@
     "/Users/diegomesquita/.nuget/packages/testableio.system.io.abstractions/19.2.29/testableio.system.io.abstractions.19.2.29.nupkg.sha512",
     "/Users/diegomesquita/.nuget/packages/testableio.system.io.abstractions.wrappers/19.2.29/testableio.system.io.abstractions.wrappers.19.2.29.nupkg.sha512",
     "/Users/diegomesquita/.nuget/packages/tmds.dbus.protocol/0.15.0/tmds.dbus.protocol.0.15.0.nupkg.sha512",
+    "/Users/diegomesquita/.nuget/packages/microsoft.netcore.app.ref/8.0.16/microsoft.netcore.app.ref.8.0.16.nupkg.sha512",
+    "/Users/diegomesquita/.nuget/packages/microsoft.netcore.app.runtime.osx-x64/8.0.16/microsoft.netcore.app.runtime.osx-x64.8.0.16.nupkg.sha512",
     "/Users/diegomesquita/.nuget/packages/microsoft.aspnetcore.app.ref/8.0.16/microsoft.aspnetcore.app.ref.8.0.16.nupkg.sha512",
     "/Users/diegomesquita/.nuget/packages/microsoft.aspnetcore.app.runtime.osx-x64/8.0.16/microsoft.aspnetcore.app.runtime.osx-x64.8.0.16.nupkg.sha512",
     "/Users/diegomesquita/.nuget/packages/microsoft.netcore.app.crossgen2.osx-arm64/8.0.16/microsoft.netcore.app.crossgen2.osx-arm64.8.0.16.nupkg.sha512",
-    "/Users/diegomesquita/.nuget/packages/microsoft.netcore.app.host.osx-x64/8.0.16/microsoft.netcore.app.host.osx-x64.8.0.16.nupkg.sha512",
-    "/Users/diegomesquita/.nuget/packages/microsoft.netcore.app.ref/8.0.16/microsoft.netcore.app.ref.8.0.16.nupkg.sha512",
-    "/Users/diegomesquita/.nuget/packages/microsoft.netcore.app.runtime.osx-x64/8.0.16/microsoft.netcore.app.runtime.osx-x64.8.0.16.nupkg.sha512"
+    "/Users/diegomesquita/.nuget/packages/microsoft.netcore.app.host.osx-x64/8.0.16/microsoft.netcore.app.host.osx-x64.8.0.16.nupkg.sha512"
   ],
   "logs": []
 }

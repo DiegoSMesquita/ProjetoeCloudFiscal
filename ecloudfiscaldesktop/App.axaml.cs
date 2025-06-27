@@ -1,29 +1,26 @@
+// Ajuste para App.axaml.cs
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Controls;
-using Avalonia.Controls.Notifications;
 using Avalonia.Markup.Xaml;
-using Avalonia.Threading;
 using eCloudFiscalDesktop.Views;
-using eCloudFiscalDesktop.Helpers;
 
-
-namespace eCloudFiscalDesktop;
-
-public partial class App : Application
+namespace eCloudFiscalDesktop
 {
-    public void InitializeComponent()
+    public partial class App : Application
     {
-        AvaloniaXamlLoader.Load(this);
-    }
-
-    public override void OnFrameworkInitializationCompleted()
-    {
-        if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+        public override void Initialize()
         {
-            desktop.MainWindow = new Views.LoginView();
+            AvaloniaXamlLoader.Load(this);
         }
 
-        base.OnFrameworkInitializationCompleted();
+        public override void OnFrameworkInitializationCompleted()
+        {
+            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            {
+                desktop.MainWindow = new LoginView();
+            }
+
+            base.OnFrameworkInitializationCompleted();
+        }
     }
 }

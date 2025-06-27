@@ -1,0 +1,39 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:eCloudFiscalDesktop.ViewModels"
+        x:Class="eCloudFiscalDesktop.Views.MainView"
+        Title="Monitor" Width="800" Height="600">
+  <Window.DataContext>
+    <vm:MainViewModel/>
+  </Window.DataContext>
+
+  <DockPanel Margin="10">
+    <StackPanel Orientation="Horizontal" DockPanel.Dock="Top" Margin="0,0,0,10">
+        <Button Content="Selecionar Pasta(s)" Command="{Binding SelectFoldersCommand}" />
+        <CheckBox Content="Permitir múltiplas pastas" IsChecked="{Binding AllowMultipleFolders}" Margin="10,0,0,0"/>
+    </StackPanel>
+    <TabControl>
+      <TabItem Header="Enviados">
+        <ListBox ItemsSource="{Binding SentFiles}">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding Nome}"/>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </TabItem>
+      <TabItem Header="Erros">
+        <ListBox ItemsSource="{Binding ErrorFiles}">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal" Spacing="10">
+                <TextBlock Text="{Binding Nome}"/>
+                <Button Content="Reenviar" Command="{Binding DataContext.RetrySendCommand, RelativeSource={RelativeSource AncestorType=Window}}" CommandParameter="{Binding Nome}"/>
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+      </TabItem>
+    </TabControl>
+  </DockPanel>
+</Window>

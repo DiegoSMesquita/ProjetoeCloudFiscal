@@ -83,46 +83,47 @@ namespace eCloudFiscalDesktop.ViewModels
 
         private async Task ShowError(string message)
         {
-            await Dispatcher.UIThread.InvokeAsync(async () =>
+            await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 var dlg = new Window
                 {
                     Title = "Erro",
                     Width = 300,
-                    Height = 150,
-                    Content = new StackPanel
+                    Height = 150
+                };
+
+                var okButton = new Button
+                {
+                    Content = "OK",
+                    HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                    Margin = new Thickness(10)
+                };
+
+                okButton.Click += (_, _) => dlg.Close();
+
+                dlg.Content = new StackPanel
+                {
+                    Children =
                     {
-                        Children =
-                        {
-                            new TextBlock { Text = message, Margin = new Thickness(10) },
-                            new Button
-                            {
-                                Content = "OK",
-                                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
-                                Margin = new Thickness(10),
-                                Command = ReactiveCommand.Create(() =>
-                                {
-                                    dlg.Close();
-                                })
-                            }
-                        }
+                        new TextBlock { Text = message, Margin = new Thickness(10) },
+                        okButton
                     }
                 };
 
-                await dlg.ShowDialog((Window?)App.Current?.ApplicationLifetime switch
+                if (App.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime lifetime)
                 {
-                    IClassicDesktopStyleApplicationLifetime d => d.MainWindow,
-                    _ => null
-                });
+                    dlg.ShowDialog(lifetime.MainWindow);
+                }
+                else
+                {
+                    dlg.Show();
+                }
             });
         }
 
         private class LoginResponse
         {
-            [JsonProperty("token")]
             public string Token { get; set; } = string.Empty;
-
-            [JsonProperty("user_id")]
             public string UserId { get; set; } = string.Empty;
         }
     }

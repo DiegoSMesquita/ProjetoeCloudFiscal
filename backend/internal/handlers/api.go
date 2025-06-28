@@ -18,24 +18,29 @@ type LoginRequest struct {
 func LoginHandler(c *gin.Context) {
 	var req LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "JSON inválido"})
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Dados inválidos"})
 		return
 	}
 
 	db := config.GetDB()
-
 	var user models.User
-	if err := db.Where("email = ? AND password = ?", req.Email, req.Password).First(&user).Error; err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Email ou senha inválidos"})
+	if err := db.Where("email = ?", req.Email).First(&user).Error; err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuário ou senha inválidos"})
 		return
 	}
 
+	if user.Password != req.Password {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Usuário ou senha inválidos"})
+		return
+	}
+
+	var cnpjs []models.UserCNPJ
+	db.Where("user_id = ?", user.ID).Find(&cnpjs)
+
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Login realizado com sucesso",
-		"user": gin.H{
-			"id":    user.ID,
-			"email": user.Email,
-		},
+		"user_id": user.ID,
+		"email":   user.Email,
+		"cnpjs":   cnpjs,
 	})
 }
 

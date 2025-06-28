@@ -8,6 +8,8 @@ using Avalonia.Threading;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using System;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace eCloudFiscalDesktop;
 
@@ -28,14 +30,33 @@ public class LoginViewModel : ReactiveObject
     }
 
     public ReactiveCommand<Unit, Unit> LoginCommand { get; }
+    public ReactiveCommand<Unit, Unit> ForgotPasswordCommand { get; }
 
     public LoginViewModel()
     {
         LoginCommand = ReactiveCommand.CreateFromTask(LoginAsync);
+        ForgotPasswordCommand = ReactiveCommand.CreateFromTask(ForgotPasswordAsync);
+    }
+
+    private bool IsValidEmail(string email)
+    {
+        if (string.IsNullOrWhiteSpace(email)) return false;
+        // Regex simples para validar e-mail
+        return Regex.IsMatch(email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$");
     }
 
     private async Task LoginAsync()
     {
+        if (!IsValidEmail(Email))
+        {
+            await ShowError("Por favor, preencha um e-mail válido.");
+            return;
+        }
+        if (string.IsNullOrWhiteSpace(Password))
+        {
+            await ShowError("Por favor, preencha a senha.");
+            return;
+        }
         try
         {
             using var client = new HttpClient();
@@ -47,9 +68,20 @@ public class LoginViewModel : ReactiveObject
             {
                 await Dispatcher.UIThread.InvokeAsync(() =>
                 {
-                    var main = new MainWindow();
-                    main.Show();
-                    CloseLoginWindow();
+                    if (Avalonia.Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+                    {
+                        var main = new MainWindow();
+                        desktop.MainWindow = main;
+                        main.Show();
+                        foreach (var window in desktop.Windows.ToList())
+                        {
+                            if (window is LoginWindow loginWindow)
+                            {
+                                loginWindow.Close();
+                                break;
+                            }
+                        }
+                    }
                 });
             }
             else
@@ -63,19 +95,9 @@ public class LoginViewModel : ReactiveObject
         }
     }
 
-    private void CloseLoginWindow()
+    private async Task ForgotPasswordAsync()
     {
-        if (Avalonia.Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-        {
-            foreach (var window in desktop.Windows)
-            {
-                if (window is LoginWindow loginWindow)
-                {
-                    loginWindow.Close();
-                    break;
-                }
-            }
-        }
+        await ShowError("Funcionalidade de redefinição de senha em breve.");
     }
 
     private async Task ShowError(string message)

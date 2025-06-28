@@ -2,31 +2,17 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="eCloudFiscalDesktop.LoginWindow"
         Title="Login - eCloudFiscal"
-        Width="400" Height="350"
+        Width="400" Height="420"
         WindowStartupLocation="CenterScreen">
-  <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" Margin="20" VerticalAlignment="Center">
-    <TextBlock Grid.Row="0" Text="Bem-vindo ao eCloudFiscal"
-               FontSize="18"
-               FontWeight="Bold"
-               HorizontalAlignment="Center"
-               Margin="0,0,0,15"/>
-    <TextBlock Grid.Row="1" Text="Email"/>
-    <TextBox Grid.Row="2"
-             Text="{Binding Email}"
-             Margin="0,5"
-             Watermark="Digite seu email"/>
-    <TextBlock Grid.Row="3" Text="Senha" Margin="0,10,0,0"/>
-    <TextBox Grid.Row="4"
-             Text="{Binding Password}"
-             PasswordChar="●"
-             Margin="0,5"
-             Watermark="Digite sua senha"/>
-    <StackPanel Grid.Row="5"
-                Orientation="Horizontal"
-                HorizontalAlignment="Right"
-                Margin="0,15,0,0"
-                Spacing="10">
-      <Button Content="Entrar" Command="{Binding LoginCommand}"/>
+  <Border Background="#23272F" CornerRadius="12" Padding="32" Margin="16">
+    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="18">
+      <TextBlock Text="Bem-vindo ao eCloudFiscal" FontSize="22" FontWeight="Bold" Foreground="#fff" HorizontalAlignment="Center"/>
+      <TextBlock Text="E-mail" Foreground="#bbb"/>
+      <TextBox Name="EmailBox" Watermark="Digite seu e-mail" MinWidth="220"/>
+      <TextBlock Text="Senha" Foreground="#bbb"/>
+      <TextBox Name="SenhaBox" Watermark="Digite sua senha" PasswordChar="●" MinWidth="220"/>
+      <Button Content="Entrar" Name="EntrarBtn" Height="38" Background="#0078D4" Foreground="#fff" FontWeight="Bold" Click="OnEntrarClick" Margin="0,10,0,0"/>
+      <TextBlock Name="MsgErro" Foreground="#ff5555" FontWeight="Bold" FontSize="14" TextWrapping="Wrap" IsVisible="False"/>
     </StackPanel>
-  </Grid>
+  </Border>
 </Window>

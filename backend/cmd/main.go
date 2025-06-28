@@ -34,7 +34,7 @@ func main() {
 	fmt.Println("✅ Conectado ao MySQL!")
 
 	// 4. Executar migrações
-	if err := db.AutoMigrate(&models.User{}, &models.XmlFile{}); err != nil {
+	if err := db.AutoMigrate(&models.User{}, &models.XmlFile{}, &models.UserCNPJ{}); err != nil {
 		log.Fatal("❌ Erro ao migrar as tabelas:", err)
 	}
 

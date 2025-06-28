@@ -7,6 +7,6 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        DataContext = new MainViewModel();
+        // Não setar DataContext para evitar problemas de threading
     }
 }

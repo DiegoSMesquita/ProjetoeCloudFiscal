@@ -8,11 +8,11 @@ import axios from 'axios'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { CalendarDaysIcon } from '@heroicons/react/24/outline'
+import { useXmls } from '../../context/XmlsContext'
 
 export default function ArquivosPage() {
-  const [xmls, setXmls] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState('')
+  // Substituir xmls, loading, error, fetchXmls pelo contexto
+  const { xmls, loading, error, refetch } = useXmls();
   const [downloading, setDownloading] = useState<string | null>(null)
   const [sending, setSending] = useState<string | null>(null)
   const [uploading, setUploading] = useState(false)
@@ -45,23 +45,6 @@ export default function ArquivosPage() {
   ]
   const [selectedColumns, setSelectedColumns] = useState<string[]>(allColumns.map(c => c.key))
 
-  useEffect(() => {
-    fetchXmls()
-  }, [])
-
-  const fetchXmls = async () => {
-    setLoading(true)
-    setError('')
-    try {
-      const res = await axios.get('http://localhost:8080/api/files/pending')
-      setXmls(res.data)
-    } catch {
-      setError('Erro ao buscar XMLs')
-    } finally {
-      setLoading(false)
-    }
-  }
-
   const handleDownload = async (xml: any) => {
     setDownloading(xml.nome_arquivo || xml.nome || xml.id)
     try {
@@ -90,12 +73,25 @@ export default function ArquivosPage() {
     }
   }
 
+  // 1. Função para formatar data dd/mm/aaaa, aceitando string ou Date
+  function formatarData(data: string) {
+    if (!data) return '-';
+    // Aceita datas tipo 20230825 (CF-e) ou ISO
+    if (/^\d{8}$/.test(data)) {
+      return `${data.slice(6,8)}/${data.slice(4,6)}/${data.slice(0,4)}`;
+    }
+    const d = new Date(data)
+    if (isNaN(d.getTime())) return '-';
+    return d.toLocaleDateString('pt-BR')
+  }
+
   // Upload XML (multipart)
   const handleUpload = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!file) return
     setUploading(true)
     setSuccessMsg('')
+    setError('')
     try {
       const formData = new FormData()
       formData.append('file', file)
@@ -104,9 +100,13 @@ export default function ArquivosPage() {
       })
       setSuccessMsg('Upload realizado com sucesso!')
       setFile(null)
-      fetchXmls()
-    } catch {
-      setError('Erro ao fazer upload')
+      refetch()
+    } catch (err: any) {
+      if (err?.response?.data?.error?.toLowerCase().includes('duplicado')) {
+        setError('Este XML já foi enviado anteriormente!')
+      } else {
+        setError('Erro ao fazer upload')
+      }
     } finally {
       setUploading(false)
       setTimeout(() => setSuccessMsg(''), 2000)
@@ -170,26 +170,26 @@ export default function ArquivosPage() {
     }
   }
 
-  // Função para extrair dados do XML (mock para exemplo)
-  function parseXmlData(xml: any) {
-    // Supondo que o backend já retorna cnpj, data e impostos pagos
-    return {
-      cnpj: xml.cnpj || 'Desconhecido',
-      data: xml.created_at ? new Date(xml.created_at).toLocaleDateString('pt-BR') : '-',
-      imposto: xml.imposto_pago || 0
-    }
-  }
-  const dadosGrafico = filteredXmls.map(parseXmlData)
+  // 2. Dashboard e gráficos alimentados corretamente
+  // Exemplo de contagem de status
+  const notasAutorizadas = filteredXmls.filter(x => x.status?.toLowerCase() === 'autorizado').length;
+  const notasCanceladas = filteredXmls.filter(x => x.status?.toLowerCase() === 'cancelado').length;
+  const dadosGrafico = filteredXmls.map(xml => ({
+    cnpj: xml.cnpj || 'Desconhecido',
+    data: formatarData(xml.dataEmissao),
+    valor: xml.valor ? Number(xml.valor) : 0,
+    status: xml.status || '-'
+  }))
   const cnpjs = [...new Set(dadosGrafico.map(x => x.cnpj))]
   const datas = [...new Set(dadosGrafico.map(x => x.data))]
-  const impostosPorCnpj = cnpjs.map(cnpj => dadosGrafico.filter(x => x.cnpj === cnpj).reduce((acc, x) => acc + x.imposto, 0))
-  const impostosPorData = datas.map(data => dadosGrafico.filter(x => x.data === data).reduce((acc, x) => acc + x.imposto, 0))
+  const valoresPorCnpj = cnpjs.map(cnpj => dadosGrafico.filter(x => x.cnpj === cnpj).reduce((acc, x) => acc + x.valor, 0))
+  const valoresPorData = datas.map(data => dadosGrafico.filter(x => x.data === data).reduce((acc, x) => acc + x.valor, 0))
   const chartData = {
     labels: cnpjs,
     datasets: [
       {
-        label: 'Impostos Pagos (por CNPJ)',
-        data: impostosPorCnpj,
+        label: 'Valor Total (por CNPJ)',
+        data: valoresPorCnpj,
         backgroundColor: 'rgba(255, 159, 64, 0.7)'
       }
     ]
@@ -198,8 +198,8 @@ export default function ArquivosPage() {
     labels: datas,
     datasets: [
       {
-        label: 'Impostos Pagos (por Data)',
-        data: impostosPorData,
+        label: 'Valor Total (por Data)',
+        data: valoresPorData,
         backgroundColor: 'rgba(54, 162, 235, 0.7)'
       }
     ]
@@ -248,7 +248,7 @@ export default function ArquivosPage() {
       setSelectedFiles([])
       setUploadStatus([])
       setUploadProgress([])
-      fetchXmls()
+      refetch()
     }, 1200)
   }
 
@@ -258,11 +258,13 @@ export default function ArquivosPage() {
     try {
       await axios.post('http://localhost:8080/api/xmls/delete', { ids: selectedRows })
       setSelectedRows([])
-      fetchXmls()
+      refetch()
     } catch {
       setError('Erro ao excluir arquivos')
     }
   }
+
+  const botaoPadrao = "px-4 py-2 rounded-lg font-bold shadow flex items-center gap-2 hover:scale-105 transition-all min-w-[120px] text-base"
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -282,7 +284,7 @@ export default function ArquivosPage() {
                   selected={periodoInicio}
                   onChange={setPeriodoInicio}
                   dateFormat="dd/MM/yyyy"
-                  className="pl-8 p-2 border rounded w-full bg-orange-50 border-orange-300 text-orange-900 focus:ring-2 focus:ring-orange-400/60"
+                  className="pl-8 p-2 border rounded w-full bg-white !bg-white border-orange-300 text-orange-900 focus:ring-2 focus:ring-orange-400/60"
                   placeholderText="DD/MM/AAAA"
                   calendarClassName="z-50"
                   calendarContainer={props => (
@@ -317,7 +319,7 @@ export default function ArquivosPage() {
                   selected={periodoFim}
                   onChange={setPeriodoFim}
                   dateFormat="dd/MM/yyyy"
-                  className="pl-8 p-2 border rounded w-full bg-orange-50 border-orange-300 text-orange-900 focus:ring-2 focus:ring-orange-400/60"
+                  className="pl-8 p-2 border rounded w-full bg-white !bg-white border-orange-300 text-orange-900 focus:ring-2 focus:ring-orange-400/60"
                   placeholderText="DD/MM/AAAA"
                   calendarClassName="z-50"
                   calendarContainer={props => (
@@ -367,10 +369,10 @@ export default function ArquivosPage() {
               >
                 Enviar XML
               </button>
-              <button onClick={() => handleExportFiltered('excel')} className="bg-gradient-to-r from-orange-600 to-orange-500 text-white px-4 py-2 rounded-lg font-bold shadow flex items-center gap-2 hover:scale-105 transition-all">
+              <button onClick={() => handleExportFiltered('excel')} className={`bg-gradient-to-r from-orange-600 to-orange-500 text-white ${botaoPadrao}`}>
                 <ArrowDownTrayIcon className="h-5 w-5" /> Exportar Excel
               </button>
-              <button onClick={() => handleExportFiltered('pdf')} className="bg-gradient-to-r from-orange-600 to-orange-500 text-white px-4 py-2 rounded-lg font-bold shadow flex items-center gap-2 hover:scale-105 transition-all">
+              <button onClick={() => handleExportFiltered('pdf')} className={`bg-gradient-to-r from-orange-600 to-orange-500 text-white ${botaoPadrao}`}>
                 <ArrowDownTrayIcon className="h-5 w-5" /> Exportar PDF
               </button>
               {/* Botão Upload XML agora abre modal */}
@@ -380,11 +382,12 @@ export default function ArquivosPage() {
             </div>
           </div>
           {successMsg && <div className="mb-4 text-green-600 font-bold text-center animate-pulse">{successMsg}</div>}
+          {error && (
+            <div className="mb-4 text-red-600 font-bold text-center animate-pulse bg-red-50 border border-red-200 rounded p-2 z-50">{error}</div>
+          )}
           <div className="bg-white rounded-2xl p-4 shadow-lg overflow-x-auto border border-orange-100">
             {loading ? (
               <div className="text-center text-orange-600 py-8 font-bold">Carregando arquivos...</div>
-            ) : error ? (
-              <div className="text-center text-red-500 py-8 font-bold">{error}</div>
             ) : (
               <>
                 {/* Seletor de colunas */}
@@ -403,24 +406,40 @@ export default function ArquivosPage() {
                 <table className="min-w-full text-gray-700 text-sm">
                   <thead className="sticky top-0 bg-white z-10">
                     <tr className="border-b border-orange-100">
-                      <th className="p-2"><input type="checkbox" checked={selectedRows.length === filteredXmls.length && filteredXmls.length > 0} onChange={e => setSelectedRows(e.target.checked ? filteredXmls.map(x => x.id) : [])} /></th>
+                      <th className="p-2"></th>
                       {allColumns.filter(col => selectedColumns.includes(col.key)).map(col => (
                         <th key={col.key} className="p-2 text-left font-semibold">{col.label}</th>
                       ))}
+                      <th className="p-2 text-left font-semibold">Status</th>
                       <th className="p-2 text-left font-semibold">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
                     {filteredXmls.map((xml: any, idx: number) => (
                       <tr key={xml.id || idx} className={idx % 2 === 0 ? "bg-orange-50 hover:bg-orange-100 transition" : "hover:bg-orange-50 transition"}>
-                        <td className="p-2"><input type="checkbox" checked={selectedRows.includes(xml.id)} onChange={e => setSelectedRows(rows => e.target.checked ? [...rows, xml.id] : rows.filter(id => id !== xml.id))} /></td>
+                        {/* 1. Checkbox múltiplo independente */}
+                        <td className="p-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedRows.includes(xml.id)}
+                            onChange={e => {
+                              if (e.target.checked) {
+                                setSelectedRows(rows => rows.includes(xml.id) ? rows : [...rows, xml.id])
+                              } else {
+                                setSelectedRows(rows => rows.filter(id => id !== xml.id))
+                              }
+                            }}
+                            className="accent-orange-500 w-5 h-5 rounded border-2 border-orange-400 focus:ring-2 focus:ring-orange-400 transition shadow-sm"
+                          />
+                        </td>
                         {allColumns.filter(col => selectedColumns.includes(col.key)).map(col => (
-                          <td key={col.key} className="p-2">{xml[col.key] || '-'}</td>
+                          <td key={col.key} className="p-2">
+                            {col.key === 'dataEmissao' ? formatarData(xml[col.key]) : col.key === 'valor' ? (xml.valor ? Number(xml.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-') : xml[col.key] || '-'}
+                          </td>
                         ))}
+                        <td className="p-2 font-semibold text-xs text-orange-700 uppercase">{xml.status || '-'}</td>
                         <td className="p-2 flex gap-2">
-                          <button onClick={() => handleDownload(xml)} disabled={downloading === (xml.nome_arquivo || xml.nome || xml.id)} className="bg-gradient-to-r from-orange-600 to-orange-500 text-white px-3 py-1 rounded shadow font-semibold hover:scale-105 transition-all disabled:opacity-60">
-                            {downloading === (xml.nome_arquivo || xml.nome || xml.id) ? 'Baixando...' : 'Baixar'}
-                          </button>
+                          <button onClick={() => handleDownload(xml)} disabled={downloading === (xml.nome_arquivo || xml.nome || xml.id)} className="bg-gradient-to-r from-orange-600 to-orange-500 text-white px-3 py-1 rounded shadow font-semibold hover:scale-105 transition-all disabled:opacity-60 min-w-[90px]">{downloading === (xml.nome_arquivo || xml.nome || xml.id) ? 'Baixando...' : 'Baixar'}</button>
                         </td>
                       </tr>
                     ))}

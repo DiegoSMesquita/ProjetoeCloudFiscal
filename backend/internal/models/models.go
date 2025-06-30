@@ -29,9 +29,19 @@ type XmlFile struct {
 	FileName  string `gorm:"not null"`
 	Status    string `gorm:"type:enum('pending','sent','error');default:'pending'"`
 	SentAt    *time.Time
-	Content   []byte `gorm:"type:longblob"` // Adicione esta linha
+	Content   []byte `gorm:"type:longblob"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
+	// Novos campos para detalhes do XML
+	Modelo       string `gorm:"type:varchar(10)" json:"modelo"`
+	CNPJ         string `gorm:"type:varchar(32)" json:"cnpj"`
+	DataEmissao  string `gorm:"type:varchar(32)" json:"dataEmissao"`
+	Valor        string `gorm:"type:varchar(32)" json:"valor"`
+	Numero       string `gorm:"type:varchar(32)" json:"numero"`
+	Serie        string `gorm:"type:varchar(32)" json:"serie"`
+	Emitente     string `gorm:"type:varchar(128)" json:"emitente"`
+	Destinatario string `gorm:"type:varchar(128)" json:"destinatario"`
+	Produtos     string `gorm:"type:text" json:"produtos"` // Salvar como JSON string
 }
 
 func (f *XmlFile) BeforeCreate(tx *gorm.DB) error {

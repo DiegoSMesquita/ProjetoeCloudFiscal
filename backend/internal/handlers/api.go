@@ -1,10 +1,11 @@
 package handlers
 
 import (
+	"encoding/json"
 	"encoding/xml"
+	"fmt"
 	"io/ioutil"
 	"net/http"
-	"strings"
 
 	"github.com/diegomesquita/ProjetoeCloudFiscal/backend/internal/config"
 	"github.com/diegomesquita/ProjetoeCloudFiscal/backend/internal/models"
@@ -53,8 +54,8 @@ func GetPendingFiles(c *gin.Context) {
 	db := config.GetDB()
 
 	var files []models.XmlFile
-	if err := db.Where("status = ?", "pending").Find(&files).Error; err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar arquivos pendentes"})
+	if err := db.Find(&files).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao buscar arquivos"})
 		return
 	}
 
@@ -81,10 +82,10 @@ func UploadXmlHandler(c *gin.Context) {
 
 	type Det struct {
 		Prod struct {
-			CProd      string `xml:"cProd"`
-			XProd      string `xml:"xProd"`
-			VUnCom     string `xml:"vUnCom"`
-			VProd      string `xml:"vProd"`
+			CProd  string `xml:"cProd"`
+			XProd  string `xml:"xProd"`
+			VUnCom string `xml:"vUnCom"`
+			VProd  string `xml:"vProd"`
 		} `xml:"prod"`
 	}
 	type InfNFe struct {
@@ -156,20 +157,96 @@ func UploadXmlHandler(c *gin.Context) {
 	}
 	// TODO: Adicionar parse para NFS-e se necessário
 
+	// Adicionar parser para CF-e SAT (modelo 59)
+	type CFeDet struct {
+		Prod struct {
+			CProd  string `xml:"cProd"`
+			XProd  string `xml:"xProd"`
+			VUnCom string `xml:"vUnCom"`
+			VProd  string `xml:"vProd"`
+		} `xml:"prod"`
+	}
+	type CFeIde struct {
+		Mod   string `xml:"mod"`
+		NCFe  string `xml:"nCFe"`
+		DEmi  string `xml:"dEmi"`
+		CNPJ  string `xml:"CNPJ"`
+		Serie string `xml:"nserieSAT"`
+	}
+	type CFeEmit struct {
+		CNPJ  string `xml:"CNPJ"`
+		XNome string `xml:"xNome"`
+	}
+	type CFeTotal struct {
+		ICMSTot struct {
+			VProd string `xml:"vProd"`
+		} `xml:"ICMSTot"`
+		VCFe string `xml:"vCFe"`
+	}
+	type CFeInfCFe struct {
+		Ide   CFeIde    `xml:"ide"`
+		Emit  CFeEmit   `xml:"emit"`
+		Det   []CFeDet  `xml:"det"`
+		Total CFeTotal  `xml:"total"`
+	}
+	type CFe struct {
+		InfCFe CFeInfCFe `xml:"infCFe"`
+	}
+	if errParse != nil || proc.NFe.InfNFe.Ide.Mod == "" {
+		// Tentar parsear como CF-e SAT
+		var cfe CFe
+		errCfe := xml.Unmarshal(content, &cfe)
+		if errCfe == nil && cfe.InfCFe.Ide.Mod == "59" {
+			modelo = cfe.InfCFe.Ide.Mod
+			tipo = "CF-e"
+			cnpj = cfe.InfCFe.Emit.CNPJ
+			emitente = cfe.InfCFe.Emit.XNome
+			numero = cfe.InfCFe.Ide.NCFe
+			serie = cfe.InfCFe.Ide.Serie
+			dataEmissao = cfe.InfCFe.Ide.DEmi
+			valor = cfe.InfCFe.Total.VCFe
+			for _, det := range cfe.InfCFe.Det {
+				produtos = append(produtos, map[string]string{
+					"codigo":         det.Prod.CProd,
+					"descricao":      det.Prod.XProd,
+					"valor_unitario": det.Prod.VUnCom,
+					"valor_total":    det.Prod.VProd,
+				})
+			}
+		}
+	}
+
 	db := config.GetDB()
+	produtosJson, _ := json.Marshal(produtos)
 	xmlFile := models.XmlFile{
-		FileName:      file.Filename,
-		Status:        "pending",
-		Content:       content,
-		Modelo:        tipo,
-		CNPJ:          cnpj,
+		FileName:     file.Filename,
+		Status:       "pending",
+		Content:      content,
+		Modelo:       tipo,
+		CNPJ:         cnpj,
 		DataEmissao:  dataEmissao,
-		Valor:         valor,
-		Numero:        numero,
-		Serie:         serie,
-		Emitente:      emitente,
+		Valor:        valor,
+		Numero:       numero,
+		Serie:        serie,
+		Emitente:     emitente,
 		Destinatario: destinatario,
-		Produtos:      produtos,
+		Produtos:     string(produtosJson),
+	}
+	// Antes de criar o xmlFile, checar duplicidade:
+	if cnpj != "" && numero != "" && serie != "" && tipo != "" {
+		var count int64
+		db.Model(&models.XmlFile{}).Where("cnpj = ? AND numero = ? AND serie = ? AND modelo = ?", cnpj, numero, serie, tipo).Count(&count)
+		if count > 0 {
+			c.JSON(http.StatusConflict, gin.H{"error": "Arquivo XML já enviado (duplicado pelo identificador fiscal)"})
+			return
+		}
+	}
+	// Após o parser do XML, antes de salvar:
+	if cnpj == "" || numero == "" || serie == "" || tipo == "" {
+		// Log para debug
+		fmt.Printf("[UPLOAD XML] Falha ao extrair campos do XML: modelo=%s, cnpj=%s, numero=%s, serie=%s\n", modelo, cnpj, numero, serie)
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Não foi possível extrair os dados fiscais do XML. Verifique o layout do arquivo."})
+		return
 	}
 	if err := db.Create(&xmlFile).Error; err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Erro ao salvar arquivo"})

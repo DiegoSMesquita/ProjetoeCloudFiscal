@@ -9,6 +9,7 @@ import (
 	"github.com/diegomesquita/ProjetoeCloudFiscal/backend/internal/config"
 	"github.com/diegomesquita/ProjetoeCloudFiscal/backend/internal/handlers"
 	"github.com/diegomesquita/ProjetoeCloudFiscal/backend/internal/models"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"gorm.io/gorm"
@@ -45,6 +46,14 @@ func main() {
 	router := gin.Default()
 	router.Use(gin.Logger())
 
+	// Middleware CORS
+	router.Use(cors.New(cors.Config{
+		AllowOrigins:     []string{"http://localhost:3000", "http://localhost:8080"},
+		AllowMethods:     []string{"POST", "GET", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Type", "Accept", "Authorization"},
+		AllowCredentials: true,
+	}))
+
 	// 7. Registrar rotas
 	registerRoutes(router)
 
@@ -64,8 +73,12 @@ func registerRoutes(router *gin.Engine) {
 	router.GET("/", homeHandler)
 	router.GET("/health", healthHandler)
 	router.GET("/api/files/pending", handlers.GetPendingFiles)
-
 	router.POST("/api/login", handlers.LoginHandler) // ✅ aqui
+	router.POST("/api/xmls/upload", handlers.UploadXmlHandler)
+	router.POST("/api/xmls/send", handlers.SendXmlsHandler)
+	router.POST("/api/xmls/export/excel", handlers.ExportExcelHandler)
+	router.POST("/api/xmls/export/pdf", handlers.ExportPdfHandler)
+	router.POST("/api/xmls/delete", handlers.DeleteXmlsHandler)
 
 	authGroup := router.Group("/api/v1")
 	authGroup.Use(authMiddleware())

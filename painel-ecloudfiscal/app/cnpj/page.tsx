@@ -1,6 +1,6 @@
 'use client'
 import { Sidebar } from "../../components/Sidebar"
-import { Navbar } from "../../components/Navbar"
+// import { Navbar } from "../../components/Navbar" // Removido para evitar múltiplas instâncias
 import { BuildingStorefrontIcon, PlusIcon, TrashIcon } from '@heroicons/react/24/solid'
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline'
 import { useEffect, useState } from 'react'
@@ -102,7 +102,7 @@ export default function CnpjPage() {
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
       <div className="flex-1 flex flex-col min-h-screen">
-        <Navbar />
+        {/* <Navbar /> Removido, pois já está no layout global */}
         <main className="flex-1 p-6 md:p-10 bg-gray-50 min-h-screen">
           <h1 className="text-2xl md:text-3xl font-extrabold text-orange-700 mb-8 flex items-center gap-3">
             <BuildingStorefrontIcon className="h-8 w-8 text-orange-500" />

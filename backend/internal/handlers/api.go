@@ -184,10 +184,10 @@ func UploadXmlHandler(c *gin.Context) {
 		VCFe string `xml:"vCFe"`
 	}
 	type CFeInfCFe struct {
-		Ide   CFeIde    `xml:"ide"`
-		Emit  CFeEmit   `xml:"emit"`
-		Det   []CFeDet  `xml:"det"`
-		Total CFeTotal  `xml:"total"`
+		Ide   CFeIde   `xml:"ide"`
+		Emit  CFeEmit  `xml:"emit"`
+		Det   []CFeDet `xml:"det"`
+		Total CFeTotal `xml:"total"`
 	}
 	type CFe struct {
 		InfCFe CFeInfCFe `xml:"infCFe"`
@@ -318,3 +318,9 @@ func DeleteXmlsHandler(c *gin.Context) {
 	}
 	c.JSON(http.StatusOK, gin.H{"message": "Arquivos excluídos com sucesso!"})
 }
+
+// ------------ ADMIN LOGIN ------------
+
+// Removido: struct AdminLoginRequest duplicada
+// Removido: referências a models.Admin, req.Email, req.Password
+// Use apenas o handler AdminLoginGinHandler do admin_auth.go para autenticação admin

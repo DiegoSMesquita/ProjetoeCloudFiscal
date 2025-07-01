@@ -1,13 +1,13 @@
 'use client'
 import { Sidebar } from "../../components/Sidebar"
-import { Navbar } from "../../components/Navbar"
+// import { Navbar } from "../../components/Navbar" // Removido para evitar múltiplas instâncias
 import { ArrowDownTrayIcon, ArrowUpTrayIcon } from '@heroicons/react/24/solid'
 import { Dialog } from '@headlessui/react'
 import { useEffect, useRef, useState } from 'react'
 import axios from 'axios'
+import { CalendarDaysIcon } from '@heroicons/react/24/outline'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
-import { CalendarDaysIcon } from '@heroicons/react/24/outline'
 import { useXmls } from '../../context/XmlsContext'
 
 export default function ArquivosPage() {
@@ -19,8 +19,6 @@ export default function ArquivosPage() {
   const [file, setFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [successMsg, setSuccessMsg] = useState('')
-  const [periodoInicio, setPeriodoInicio] = useState<Date | null>(null)
-  const [periodoFim, setPeriodoFim] = useState<Date | null>(null)
   const [showSendModal, setShowSendModal] = useState(false)
   const [emailToSend, setEmailToSend] = useState('')
   const [messageToSend, setMessageToSend] = useState('')
@@ -30,6 +28,8 @@ export default function ArquivosPage() {
   const [uploadStatus, setUploadStatus] = useState<{ name: string, status: string }[]>([])
   const [selectedRows, setSelectedRows] = useState<string[]>([])
   const [uploadProgress, setUploadProgress] = useState<number[]>([])
+  const [errorLocal, setErrorLocal] = useState('')
+  const [errorFileName, setErrorFileName] = useState('')
 
   // Colunas dinâmicas disponíveis
   const allColumns = [
@@ -91,7 +91,8 @@ export default function ArquivosPage() {
     if (!file) return
     setUploading(true)
     setSuccessMsg('')
-    setError('')
+    setErrorLocal('')
+    setErrorFileName('')
     try {
       const formData = new FormData()
       formData.append('file', file)
@@ -100,12 +101,56 @@ export default function ArquivosPage() {
       })
       setSuccessMsg('Upload realizado com sucesso!')
       setFile(null)
+      setErrorLocal('')
+      setErrorFileName('')
       refetch()
     } catch (err: any) {
-      if (err?.response?.data?.error?.toLowerCase().includes('duplicado')) {
-        setError('Este XML já foi enviado anteriormente!')
+      let msg = 'Erro ao fazer upload'
+      let fileName = file?.name || ''
+      // LOG DETALHADO PARA DEBUG
+      console.log('Erro no upload:', err)
+      if (err?.response) {
+        let data = err.response.data
+        if (typeof data === 'string') {
+          try { data = JSON.parse(data) } catch {}
+        }
+        if (err.response.status === 409) {
+          if (data && typeof data === 'object' && data.error) {
+            msg = data.error
+          } else if (typeof data === 'string' && data.includes('importado')) {
+            msg = data
+          } else {
+            msg = `O arquivo ${fileName} já foi importado anteriormente!`
+          }
+          // Exibe erro local na tela
+          setErrorLocal(msg)
+        }
+        // ...restante igual...
+      }
+      // Sempre exibe a notificação, mesmo se msg for padrão
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new CustomEvent('addNotification', {
+          detail: {
+            id: Date.now().toString(),
+            message: msg,
+            type: 'error',
+            createdAt: new Date().toLocaleString(),
+            read: false
+          }
+        }))
+        if (window.top && window.top !== window) {
+          window.top.dispatchEvent(new CustomEvent('addNotification', {
+            detail: {
+              id: Date.now().toString(),
+              message: msg,
+              type: 'error',
+              createdAt: new Date().toLocaleString(),
+              read: false
+            }
+          }))
+        }
       } else {
-        setError('Erro ao fazer upload')
+        console.log('window não está definido!')
       }
     } finally {
       setUploading(false)
@@ -125,10 +170,22 @@ export default function ArquivosPage() {
     link.remove()
   }
 
+  // --- Filtros de data do dashboard ---
+  const [periodStart, setPeriodStart] = useState("")
+  const [periodEnd, setPeriodEnd] = useState("")
+  const [periodStartDate, setPeriodStartDate] = useState<Date | null>(null)
+  const [periodEndDate, setPeriodEndDate] = useState<Date | null>(null)
+
+  useEffect(() => {
+    if (periodStartDate) setPeriodStart(periodStartDate.toISOString().slice(0, 10))
+    else setPeriodStart("")
+    if (periodEndDate) setPeriodEnd(periodEndDate.toISOString().slice(0, 10))
+    else setPeriodEnd("")
+  }, [periodStartDate, periodEndDate])
+
   // Filtro de XMLs por data
   const filteredXmls = xmls.filter(xml => {
-    const data = xml.created_at ? new Date(xml.created_at) : null
-    return (!periodoInicio || (data && data >= periodoInicio)) && (!periodoFim || (data && data <= periodoFim))
+    return (!periodStart || !periodEnd || (xml.dataEmissao >= periodStart && xml.dataEmissao <= periodEnd))
   })
 
   // Envio de e-mail com zip
@@ -264,45 +321,60 @@ export default function ArquivosPage() {
     }
   }
 
-  const botaoPadrao = "px-4 py-2 rounded-lg font-bold shadow flex items-center gap-2 hover:scale-105 transition-all min-w-[120px] text-base"
+  const botaoPadrao = "px-4 py-2 rounded-lg font-bold shadow flex items-center gap-2 hover:scale-105 transition-all min-w-[120px] text-base justify-center text-center"
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
       <div className="flex-1 flex flex-col min-h-screen">
-        <Navbar />
+        {/* <Navbar /> Removido, pois já está no layout global */}
         <main className="flex-1 p-6 md:p-10 bg-gray-50 min-h-screen">
+          {errorLocal && (
+            <div className="mb-4 text-red-600 font-bold text-center animate-pulse bg-red-50 border border-red-200 rounded p-2 z-50">{errorLocal}</div>
+          )}
+          {error && (
+            <div className="mb-4 text-red-600 font-bold text-center animate-pulse bg-red-50 border border-red-200 rounded p-2 z-50">{error}</div>
+          )}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
             <h1 className="text-2xl md:text-3xl font-extrabold text-orange-700">Arquivos Fiscais</h1>
             <div className="flex gap-2 items-end">
               <div className="relative w-full max-w-[180px]">
-                <label className="block mb-2 font-semibold text-orange-700">Data Inicial</label>
+                <label className="block mb-2 font-semibold text-orange-700">Período Inicial</label>
                 <span className="absolute left-2 top-9 text-orange-400 pointer-events-none">
                   <CalendarDaysIcon className="w-5 h-5" />
                 </span>
                 <DatePicker
-                  selected={periodoInicio}
-                  onChange={setPeriodoInicio}
+                  selected={periodStartDate}
+                  onChange={date => setPeriodStartDate(date)}
                   dateFormat="dd/MM/yyyy"
-                  className="pl-8 p-2 border rounded w-full bg-white !bg-white border-orange-300 text-orange-900 focus:ring-2 focus:ring-orange-400/60"
+                  className="pl-8 p-2 border rounded w-full bg-orange-50 border-orange-300 text-orange-900 focus:ring-2 focus:ring-orange-400/60"
                   placeholderText="DD/MM/AAAA"
                   calendarClassName="z-50"
+                  renderCustomHeader={({ date, decreaseMonth, increaseMonth }) => (
+                    <div className="flex justify-between items-center px-2 py-1">
+                      <button onClick={decreaseMonth} type="button">‹</button>
+                      <span className="font-semibold">{date.toLocaleString('pt-BR', { month: 'long', year: 'numeric' })}</span>
+                      <button onClick={increaseMonth} type="button">›</button>
+                    </div>
+                  )}
+                  customInput={<input type="text" className="pl-8 p-2 border rounded w-full bg-orange-50 border-orange-300 text-orange-900 focus:ring-2 focus:ring-orange-400/60" />}
+                  popperPlacement="bottom-start"
                   calendarContainer={props => (
                     <div>
                       <div className="flex gap-2 p-2 pb-0">
                         <button type="button" onClick={() => {
-                          const end = periodoFim || new Date();
+                          const end = periodEndDate || new Date();
                           const start = new Date(end);
                           start.setDate(end.getDate() - 29);
-                          setPeriodoInicio(start);
-                          setPeriodoFim(end);
+                          setPeriodStartDate(start);
+                          setPeriodEndDate(end);
                         }} className="px-2 py-1 rounded bg-orange-100 text-orange-700 text-xs font-semibold border border-orange-200 hover:bg-orange-200 transition">Últimos 30 dias</button>
                         <button type="button" onClick={() => {
-                          const end = periodoFim || new Date();
+                          const end = periodEndDate || new Date();
                           const start = new Date(end);
                           start.setDate(end.getDate() - 14);
-                          setPeriodoInicio(start);
-                          setPeriodoFim(end);
+                          setPeriodStartDate(start);
+                          setPeriodEndDate(end);
                         }} className="px-2 py-1 rounded bg-orange-100 text-orange-700 text-xs font-semibold border border-orange-200 hover:bg-orange-200 transition">Últimos 15 dias</button>
                       </div>
                       {props.children}
@@ -311,17 +383,26 @@ export default function ArquivosPage() {
                 />
               </div>
               <div className="relative w-full max-w-[180px]">
-                <label className="block mb-2 font-semibold text-orange-700">Data Final</label>
+                <label className="block mb-2 font-semibold text-orange-700">Período Final</label>
                 <span className="absolute left-2 top-9 text-orange-400 pointer-events-none">
                   <CalendarDaysIcon className="w-5 h-5" />
                 </span>
                 <DatePicker
-                  selected={periodoFim}
-                  onChange={setPeriodoFim}
+                  selected={periodEndDate}
+                  onChange={date => setPeriodEndDate(date)}
                   dateFormat="dd/MM/yyyy"
-                  className="pl-8 p-2 border rounded w-full bg-white !bg-white border-orange-300 text-orange-900 focus:ring-2 focus:ring-orange-400/60"
+                  className="pl-8 p-2 border rounded w-full bg-orange-50 border-orange-300 text-orange-900 focus:ring-2 focus:ring-orange-400/60"
                   placeholderText="DD/MM/AAAA"
                   calendarClassName="z-50"
+                  renderCustomHeader={({ date, decreaseMonth, increaseMonth }) => (
+                    <div className="flex justify-between items-center px-2 py-1">
+                      <button onClick={decreaseMonth} type="button">‹</button>
+                      <span className="font-semibold">{date.toLocaleString('pt-BR', { month: 'long', year: 'numeric' })}</span>
+                      <button onClick={increaseMonth} type="button">›</button>
+                    </div>
+                  )}
+                  customInput={<input type="text" className="pl-8 p-2 border rounded w-full bg-orange-50 border-orange-300 text-orange-900 focus:ring-2 focus:ring-orange-400/60" />}
+                  popperPlacement="bottom-start"
                   calendarContainer={props => (
                     <div>
                       <div className="flex gap-2 p-2 pb-0">
@@ -329,15 +410,15 @@ export default function ArquivosPage() {
                           const end = new Date();
                           const start = new Date(end);
                           start.setDate(end.getDate() - 29);
-                          setPeriodoInicio(start);
-                          setPeriodoFim(end);
+                          setPeriodStartDate(start);
+                          setPeriodEndDate(end);
                         }} className="px-2 py-1 rounded bg-orange-100 text-orange-700 text-xs font-semibold border border-orange-200 hover:bg-orange-200 transition">Últimos 30 dias</button>
                         <button type="button" onClick={() => {
                           const end = new Date();
                           const start = new Date(end);
                           start.setDate(end.getDate() - 14);
-                          setPeriodoInicio(start);
-                          setPeriodoFim(end);
+                          setPeriodStartDate(start);
+                          setPeriodEndDate(end);
                         }} className="px-2 py-1 rounded bg-orange-100 text-orange-700 text-xs font-semibold border border-orange-200 hover:bg-orange-200 transition">Últimos 15 dias</button>
                       </div>
                       {props.children}
@@ -369,19 +450,19 @@ export default function ArquivosPage() {
               >
                 Enviar XML
               </button>
-              <button onClick={() => handleExportFiltered('excel')} className={`bg-gradient-to-r from-orange-600 to-orange-500 text-white ${botaoPadrao}`}>
+              <button onClick={() => handleExportFiltered('excel')} className={`bg-gradient-to-r from-orange-600 to-orange-500 text-white ${botaoPadrao} min-w-[120px] justify-center`}>
                 <ArrowDownTrayIcon className="h-5 w-5" /> Exportar Excel
               </button>
-              <button onClick={() => handleExportFiltered('pdf')} className={`bg-gradient-to-r from-orange-600 to-orange-500 text-white ${botaoPadrao}`}>
+              <button onClick={() => handleExportFiltered('pdf')} className={`bg-gradient-to-r from-orange-600 to-orange-500 text-white ${botaoPadrao} min-w-[120px] justify-center`}>
                 <ArrowDownTrayIcon className="h-5 w-5" /> Exportar PDF
               </button>
-              {/* Botão Upload XML agora abre modal */}
-              <button type="button" onClick={() => setShowUploadModal(true)} className="bg-gradient-to-r from-green-500 to-green-700 text-white px-4 py-2 rounded-lg font-bold shadow flex items-center gap-2 cursor-pointer hover:scale-105 transition-all">
+              <button type="button" onClick={() => setShowUploadModal(true)} className="bg-gradient-to-r from-green-500 to-green-700 text-white px-4 py-2 rounded-lg font-bold shadow flex items-center gap-2 cursor-pointer hover:scale-105 transition-all min-w-[120px] justify-center">
                 <ArrowUpTrayIcon className="h-5 w-5" /> Upload XML
               </button>
             </div>
           </div>
           {successMsg && <div className="mb-4 text-green-600 font-bold text-center animate-pulse">{successMsg}</div>}
+          {/* 2. Mensagem de erro duplicado visível após upload */}
           {error && (
             <div className="mb-4 text-red-600 font-bold text-center animate-pulse bg-red-50 border border-red-200 rounded p-2 z-50">{error}</div>
           )}
@@ -415,34 +496,38 @@ export default function ArquivosPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {filteredXmls.map((xml: any, idx: number) => (
-                      <tr key={xml.id || idx} className={idx % 2 === 0 ? "bg-orange-50 hover:bg-orange-100 transition" : "hover:bg-orange-50 transition"}>
-                        {/* 1. Checkbox múltiplo independente */}
-                        <td className="p-2">
-                          <input
-                            type="checkbox"
-                            checked={selectedRows.includes(xml.id)}
-                            onChange={e => {
-                              if (e.target.checked) {
-                                setSelectedRows(rows => rows.includes(xml.id) ? rows : [...rows, xml.id])
-                              } else {
-                                setSelectedRows(rows => rows.filter(id => id !== xml.id))
-                              }
-                            }}
-                            className="accent-orange-500 w-5 h-5 rounded border-2 border-orange-400 focus:ring-2 focus:ring-orange-400 transition shadow-sm"
-                          />
-                        </td>
-                        {allColumns.filter(col => selectedColumns.includes(col.key)).map(col => (
-                          <td key={col.key} className="p-2">
-                            {col.key === 'dataEmissao' ? formatarData(xml[col.key]) : col.key === 'valor' ? (xml.valor ? Number(xml.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-') : xml[col.key] || '-'}
+                    {filteredXmls.map((xml: any, idx: number) => {
+                      // Fallback seguro para key e id
+                      const uniqueKey = xml?.id ? String(xml.id) : xml?.fileName || xml?.nome_arquivo || `idx-${idx}`
+                      // Remover log de undefined
+                      // console.log('xml.id', xml.id, typeof xml.id)
+                      return (
+                        <tr key={uniqueKey} className={idx % 2 === 0 ? "bg-orange-50 hover:bg-orange-100 transition" : "hover:bg-orange-50 transition"}>
+                          <td className="p-2">
+                            <input
+                              type="checkbox"
+                              checked={selectedRows.includes(uniqueKey)}
+                              onChange={e => {
+                                setSelectedRows(prev => {
+                                  if (e.target.checked) return [...prev, uniqueKey]
+                                  return prev.filter(k => k !== uniqueKey)
+                                })
+                              }}
+                              className="accent-orange-500 w-5 h-5 rounded border-2 border-orange-400 focus:ring-2 focus:ring-orange-400 transition shadow-sm"
+                            />
                           </td>
-                        ))}
-                        <td className="p-2 font-semibold text-xs text-orange-700 uppercase">{xml.status || '-'}</td>
-                        <td className="p-2 flex gap-2">
-                          <button onClick={() => handleDownload(xml)} disabled={downloading === (xml.nome_arquivo || xml.nome || xml.id)} className="bg-gradient-to-r from-orange-600 to-orange-500 text-white px-3 py-1 rounded shadow font-semibold hover:scale-105 transition-all disabled:opacity-60 min-w-[90px]">{downloading === (xml.nome_arquivo || xml.nome || xml.id) ? 'Baixando...' : 'Baixar'}</button>
-                        </td>
-                      </tr>
-                    ))}
+                          {allColumns.filter(col => selectedColumns.includes(col.key)).map(col => (
+                            <td key={col.key} className="p-2">
+                              {col.key === 'dataEmissao' ? formatarData(xml[col.key]) : col.key === 'valor' ? (xml.valor ? Number(xml.valor).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }) : '-') : xml[col.key] || '-'}
+                            </td>
+                          ))}
+                          <td className="p-2 font-semibold text-xs text-orange-700 uppercase">{xml.status || '-'}</td>
+                          <td className="p-2 flex gap-2">
+                            <button onClick={() => handleDownload(xml)} disabled={downloading === (xml.nome_arquivo || xml.nome || xml.id)} className="bg-gradient-to-r from-orange-600 to-orange-500 text-white px-3 py-1 rounded shadow font-semibold hover:scale-105 transition-all disabled:opacity-60 min-w-[90px]">{downloading === (xml.nome_arquivo || xml.nome || xml.id) ? 'Baixando...' : 'Baixar'}</button>
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </>

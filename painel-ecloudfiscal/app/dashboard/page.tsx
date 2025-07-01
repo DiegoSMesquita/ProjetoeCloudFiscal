@@ -1,6 +1,6 @@
 'use client'
 import { Sidebar } from "../../components/Sidebar"
-import { Navbar } from "../../components/Navbar"
+// import { Navbar } from "../../components/Navbar" // Removido para evitar múltiplas instâncias
 import { BanknotesIcon, DocumentTextIcon } from '@heroicons/react/24/solid'
 import { CalendarDaysIcon } from '@heroicons/react/24/outline'
 import { useRef, useEffect, useState } from 'react'
@@ -255,7 +255,7 @@ export default function Dashboard() {
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
       <div className="flex-1 flex flex-col min-h-screen">
-        <Navbar user={user} />
+        {/* <Navbar /> Removido, pois já está no layout global */}
         <main className="flex-1 p-6 md:p-10 bg-gray-50 min-h-screen">
           {/* Filtros, botão e cards no topo */}
           <div className="flex flex-col md:flex-row md:items-end gap-4 mb-8">

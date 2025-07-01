@@ -1,6 +1,6 @@
 'use client'
 import { Sidebar } from "../../components/Sidebar"
-import { Navbar } from "../../components/Navbar"
+// import { Navbar } from "../../components/Navbar" // Removido para evitar múltiplas instâncias
 import { BanknotesIcon, DocumentTextIcon, ArrowTrendingUpIcon, ArrowTrendingDownIcon, ArrowDownTrayIcon } from '@heroicons/react/24/solid'
 import { useEffect, useState } from 'react'
 import axios from 'axios'
@@ -90,7 +90,7 @@ export default function RelatoriosPage() {
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
       <div className="flex-1 flex flex-col min-h-screen">
-        <Navbar />
+        {/* <Navbar /> Removido, pois já está no layout global */}
         <main className="flex-1 p-6 md:p-10 bg-gray-50 min-h-screen">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-2xl md:text-3xl font-extrabold text-orange-700">Relatórios</h1>
@@ -114,7 +114,7 @@ export default function RelatoriosPage() {
                       selected={periodoInicio}
                       onChange={setPeriodoInicio}
                       dateFormat="dd/MM/yyyy"
-                      className="pl-8 p-2 border rounded w-full bg-orange-50 border-orange-300 text-orange-900 focus:ring-2 focus:ring-orange-400/60"
+                      className="pl-8 p-2 border rounded w-full bg-white bg-opacity-100 !bg-white !bg-opacity-100 border-orange-300 text-orange-900 focus:ring-2 focus:ring-orange-400/60"
                       placeholderText="DD/MM/AAAA"
                       calendarClassName="z-50"
                       calendarContainer={props => (
@@ -149,7 +149,7 @@ export default function RelatoriosPage() {
                       selected={periodoFim}
                       onChange={setPeriodoFim}
                       dateFormat="dd/MM/yyyy"
-                      className="pl-8 p-2 border rounded w-full bg-orange-50 border-orange-300 text-orange-900 focus:ring-2 focus:ring-orange-400/60"
+                      className="pl-8 p-2 border rounded w-full bg-white bg-opacity-100 !bg-white !bg-opacity-100 border-orange-300 text-orange-900 focus:ring-2 focus:ring-orange-400/60"
                       placeholderText="DD/MM/AAAA"
                       calendarClassName="z-50"
                       calendarContainer={props => (
@@ -178,7 +178,7 @@ export default function RelatoriosPage() {
                 </div>
                 <div>
                   <label className="block mb-2 font-semibold text-orange-700">Tipo de Relatório</label>
-                  <select className="w-full p-2 border rounded bg-orange-50 border-orange-300 text-orange-900" value={tipoRelatorio} onChange={e => setTipoRelatorio(e.target.value)}>
+                  <select className="w-full p-2 border rounded bg-white border-orange-300 text-orange-900" value={tipoRelatorio} onChange={e => setTipoRelatorio(e.target.value)}>
                     {tiposRelatorio.map(opt => (
                       <option key={opt.value} value={opt.value}>{opt.label}</option>
                     ))}
@@ -186,7 +186,7 @@ export default function RelatoriosPage() {
                 </div>
                 <div className="flex gap-2 justify-end mt-2">
                   <button onClick={() => setShowModal(false)} className="px-4 py-2 rounded border border-orange-400 text-orange-700 font-semibold bg-white hover:bg-orange-50 transition">Cancelar</button>
-                  <button onClick={handleGerarRelatorio} disabled={gerando || !periodoInicio || !periodoFim} className="px-4 py-2 rounded bg-gradient-to-r from-orange-600 to-orange-500 text-white font-bold shadow disabled:opacity-60">
+                  <button onClick={handleGerarRelatorio} disabled={gerando || !periodoInicio || !periodoFim} className="px-4 py-2 rounded bg-gradient-to-r from-orange-600 to-orange-500 text-white font-bold shadow disabled:opacity-60 flex items-center gap-2 min-w-[120px] justify-center">
                     {gerando ? 'Gerando...' : 'Gerar'}
                   </button>
                 </div>
@@ -241,11 +241,11 @@ export default function RelatoriosPage() {
                         }>{r.status}</span>
                       </td>
                       <td className="p-2 flex gap-2">
-                        <button onClick={() => handleDownload(r)} disabled={downloading === r.id} className="bg-gradient-to-r from-orange-600 to-orange-500 text-white px-3 py-1 rounded shadow font-semibold hover:scale-105 transition-all disabled:opacity-60 flex items-center gap-2">
+                        <button onClick={() => handleDownload(r)} disabled={downloading === r.id} className="bg-gradient-to-r from-orange-600 to-orange-500 text-white px-3 py-1 rounded shadow font-semibold hover:scale-105 transition-all disabled:opacity-60 flex items-center gap-2 min-w-[90px] justify-center">
                           <ArrowDownTrayIcon className="h-5 w-5" />
                           {downloading === r.id ? 'Baixando...' : 'PDF'}
                         </button>
-                        <button onClick={() => window.open(`http://localhost:8080/api/relatorios/${r.id}/excel`, '_blank')} className="bg-gradient-to-r from-green-600 to-green-500 text-white px-3 py-1 rounded shadow font-semibold hover:scale-105 transition-all flex items-center gap-2">
+                        <button onClick={() => window.open(`http://localhost:8080/api/relatorios/${r.id}/excel`, '_blank')} className="bg-gradient-to-r from-green-600 to-green-500 text-white px-3 py-1 rounded shadow font-semibold hover:scale-105 transition-all flex items-center gap-2 min-w-[90px] justify-center">
                           <ArrowDownTrayIcon className="h-5 w-5" />
                           Excel
                         </button>
@@ -278,10 +278,10 @@ export default function RelatoriosPage() {
                 </tbody>
               </table>
               <div className="flex gap-2 mt-4">
-                <button onClick={() => window.open(relatorioGerado.pdf, '_blank')} className="bg-gradient-to-r from-orange-600 to-orange-500 text-white px-4 py-2 rounded shadow font-semibold flex items-center gap-2">
+                <button onClick={() => window.open(relatorioGerado.pdf, '_blank')} className="bg-gradient-to-r from-orange-600 to-orange-500 text-white px-4 py-2 rounded shadow font-semibold flex items-center gap-2 min-w-[120px] justify-center">
                   <ArrowDownTrayIcon className="h-5 w-5" /> PDF
                 </button>
-                <button onClick={() => window.open(relatorioGerado.excel, '_blank')} className="bg-gradient-to-r from-green-600 to-green-500 text-white px-4 py-2 rounded shadow font-semibold flex items-center gap-2">
+                <button onClick={() => window.open(relatorioGerado.excel, '_blank')} className="bg-gradient-to-r from-green-600 to-green-500 text-white px-4 py-2 rounded shadow font-semibold flex items-center gap-2 min-w-[120px] justify-center">
                   <ArrowDownTrayIcon className="h-5 w-5" /> Excel
                 </button>
               </div>

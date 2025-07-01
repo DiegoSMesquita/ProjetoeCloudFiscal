@@ -56,6 +56,8 @@ func main() {
 
 	// 7. Registrar rotas
 	registerRoutes(router)
+	// Rota de login admin
+	router.POST("/api/admin/login", handlers.AdminLoginGinHandler)
 
 	// 8. Configurar porta
 	port := os.Getenv("PORT")
